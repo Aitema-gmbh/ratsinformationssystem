@@ -1,0 +1,527 @@
+{
+  "info": {
+    "name": "aitema|Rats OParl API",
+    "description": "OParl 1.1 konformes Ratsinformationssystem - Postman Collection\n\nBeinhaltet alle 12 OParl-Objekttypen, Admin, Migration und Workflow.",
+    "version": "1.1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{jwt_token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" },
+    { "key": "jwt_token", "value": "", "type": "string" },
+    { "key": "body_id", "value": "", "type": "string" },
+    { "key": "org_id", "value": "", "type": "string" },
+    { "key": "person_id", "value": "", "type": "string" },
+    { "key": "meeting_id", "value": "", "type": "string" },
+    { "key": "paper_id", "value": "", "type": "string" },
+    { "key": "tenant_id", "value": "", "type": "string" },
+    { "key": "workflow_id", "value": "", "type": "string" },
+    { "key": "instance_id", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "OParl System",
+      "item": [
+        {
+          "name": "Get System Entry Point",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/system",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Body",
+      "item": [
+        {
+          "name": "List All Bodies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/oparl/body?page=1&per_page=25",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "oparl", "body"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "25" }
+              ]
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.collectionVariables.set('body_id', jsonData.data[0].id.split('/').pop());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Body by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/body/{{body_id}}",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl LegislativeTerm",
+      "item": [
+        {
+          "name": "List Legislative Terms",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/body/{{body_id}}/legislative-term",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Organization",
+      "item": [
+        {
+          "name": "List Organizations",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/oparl/body/{{body_id}}/organization?organization_type=committee",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "oparl", "body", "{{body_id}}", "organization"],
+              "query": [
+                { "key": "organization_type", "value": "committee", "disabled": true }
+              ]
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.collectionVariables.set('org_id', jsonData.data[0].id.split('/').pop());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Organization",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/organization/{{org_id}}",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Person",
+      "item": [
+        {
+          "name": "List Persons",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/body/{{body_id}}/person",
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.collectionVariables.set('person_id', jsonData.data[0].id.split('/').pop());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Person",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/person/{{person_id}}",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Membership",
+      "item": [
+        {
+          "name": "List Memberships by Organization",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/organization/{{org_id}}/membership",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "List Memberships by Person",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/person/{{person_id}}/membership",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Meeting",
+      "item": [
+        {
+          "name": "List Meetings",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/oparl/body/{{body_id}}/meeting?meeting_state=scheduled",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "oparl", "body", "{{body_id}}", "meeting"],
+              "query": [
+                { "key": "meeting_state", "value": "scheduled", "disabled": true },
+                { "key": "date_from", "value": "2026-01-01", "disabled": true },
+                { "key": "date_to", "value": "2026-12-31", "disabled": true }
+              ]
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.collectionVariables.set('meeting_id', jsonData.data[0].id.split('/').pop());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Meeting",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/meeting/{{meeting_id}}",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl AgendaItem",
+      "item": [
+        {
+          "name": "List Agenda Items",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/meeting/{{meeting_id}}/agenda-item",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Paper",
+      "item": [
+        {
+          "name": "List Papers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/oparl/body/{{body_id}}/paper?paper_type=Antrag",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "oparl", "body", "{{body_id}}", "paper"],
+              "query": [
+                { "key": "paper_type", "value": "Antrag", "disabled": true },
+                { "key": "reference", "value": "", "disabled": true }
+              ]
+            },
+            "auth": { "type": "noauth" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.collectionVariables.set('paper_id', jsonData.data[0].id.split('/').pop());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Paper",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/paper/{{paper_id}}",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OParl Consultation",
+      "item": [
+        {
+          "name": "List Consultations",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/oparl/paper/{{paper_id}}/consultation",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        {
+          "name": "Full-Text Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/oparl/search?q=Haushalt&object_type=paper",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "oparl", "search"],
+              "query": [
+                { "key": "q", "value": "Haushalt" },
+                { "key": "object_type", "value": "paper", "disabled": true },
+                { "key": "body_id", "value": "{{body_id}}", "disabled": true }
+              ]
+            },
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List Tenants",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/admin/tenants"
+          }
+        },
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/admin/tenants",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"stadt-musterstadt\",\n  \"name\": \"Stadt Musterstadt\",\n  \"ags\": \"12345678\",\n  \"contact_email\": \"ris@musterstadt.de\",\n  \"contact_name\": \"IT-Abteilung\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('tenant_id', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Tenant",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/admin/tenants/{{tenant_id}}"
+          }
+        },
+        {
+          "name": "Update Tenant",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/api/v1/admin/tenants/{{tenant_id}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Stadt Musterstadt (aktualisiert)\",\n  \"domain\": \"ris.musterstadt.de\"\n}"
+            }
+          }
+        },
+        {
+          "name": "System Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/admin/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Migration",
+      "item": [
+        {
+          "name": "Migration Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/admin/migration/status",
+            "auth": { "type": "noauth" }
+          }
+        },
+        {
+          "name": "Migrate from OParl",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/admin/migration/oparl?source_url=https://example-oparl.de/api/v1&tenant_id=default",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "migration", "oparl"],
+              "query": [
+                { "key": "source_url", "value": "https://example-oparl.de/api/v1" },
+                { "key": "tenant_id", "value": "default" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Migrate from ALLRIS CSV",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/admin/migration/allris/csv?tenant_id=default",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "migration", "allris", "csv"],
+              "query": [
+                { "key": "tenant_id", "value": "default" }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "gremien", "type": "file", "src": "" },
+                { "key": "personen", "type": "file", "src": "" },
+                { "key": "vorlagen", "type": "file", "src": "" },
+                { "key": "sitzungen", "type": "file", "src": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Workflow",
+      "item": [
+        {
+          "name": "List Workflows",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/workflow/workflows"
+          }
+        },
+        {
+          "name": "Create Workflow",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/workflow/workflows",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Standard-Freigabe\",\n  \"description\": \"Zwei-Stufen-Freigabe: Fachbereich, dann Buergermeister\",\n  \"steps\": [\n    {\n      \"name\": \"Fachbereich\",\n      \"order\": 1,\n      \"required_role\": \"department_head\"\n    },\n    {\n      \"name\": \"Buergermeister\",\n      \"order\": 2,\n      \"required_role\": \"mayor\"\n    }\n  ]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('workflow_id', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Workflow Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/workflow/workflows/{{workflow_id}}"
+          }
+        },
+        {
+          "name": "Start Workflow Instance",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/workflow/instances",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paper_id\": \"{{paper_id}}\",\n  \"workflow_id\": \"{{workflow_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('instance_id', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Instance Detail",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/workflow/instances/{{instance_id}}"
+          }
+        },
+        {
+          "name": "Make Decision (Approve)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/workflow/instances/{{instance_id}}/decide",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"approved\",\n  \"comment\": \"Inhaltlich geprueft und freigegeben.\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

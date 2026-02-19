@@ -1,0 +1,1661 @@
+openapi: 3.0.3
+info:
+  title: aitema|Rats OParl API
+  description: |
+    OParl 1.1 konforme REST-API fuer das kommunale Ratsinformationssystem.
+    Implementiert alle 12 OParl-Objekttypen und bietet zusaetzlich
+    Admin-, Migrations- und Workflow-Endpunkte.
+
+    ## OParl 1.1 Spezifikation
+    Basiert auf https://dev.oparl.org/spezifikation/
+
+    ## Pagination
+    Alle Listen-Endpunkte unterstuetzen OParl-konforme Pagination
+    mit page und per_page Parametern.
+
+    ## Multi-Tenant
+    Mehrere Kommunen (Bodies) mit getrennten PostgreSQL-Schemas.
+  version: 1.1.0
+  contact:
+    name: aitema GmbH
+    url: https://aitema.de
+    email: support@aitema.de
+  license:
+    name: EUPL-1.2
+    url: https://eupl.eu/1.2/de/
+
+servers:
+  - url: http://localhost:8000
+    description: Lokale Entwicklungsumgebung
+  - url: https://ris.aitema.de
+    description: Produktion
+
+tags:
+  - name: OParl System
+    description: OParl-Einstiegspunkt
+  - name: OParl Body
+    description: Koerperschaften (Kommunen/Gemeinden)
+  - name: OParl LegislativeTerm
+    description: Wahlperioden
+  - name: OParl Organization
+    description: Gremien, Fraktionen, Verwaltungseinheiten
+  - name: OParl Person
+    description: Personen (Ratsmitglieder, Verwaltung)
+  - name: OParl Membership
+    description: Mitgliedschaften in Gremien
+  - name: OParl Meeting
+    description: Sitzungen
+  - name: OParl AgendaItem
+    description: Tagesordnungspunkte
+  - name: OParl Paper
+    description: Vorlagen und Drucksachen
+  - name: OParl Consultation
+    description: Beratungen
+  - name: OParl File
+    description: Dateien und Dokumente
+  - name: OParl Location
+    description: Orte
+  - name: Search
+    description: Volltextsuche ueber alle OParl-Objekte
+  - name: Admin
+    description: Mandantenverwaltung und Systemstatus
+  - name: Migration
+    description: Datenimport aus Altsystemen
+  - name: Workflow
+    description: Vorlagen-Freigabeworkflows
+
+paths:
+  /api/v1/oparl/system:
+    get:
+      tags: [OParl System]
+      summary: OParl-System-Einstiegspunkt
+      description: Gibt das OParl-System-Objekt zurueck, den Startpunkt fuer jeden OParl-Client.
+      operationId: getSystem
+      responses:
+        '200':
+          description: OParl System-Objekt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlSystem'
+        '404':
+          description: System nicht konfiguriert
+
+  /api/v1/oparl/body:
+    get:
+      tags: [OParl Body]
+      summary: Alle Koerperschaften auflisten
+      operationId: listBodies
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Liste der Bodies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBodyResponse'
+
+  /api/v1/oparl/body/{body_id}:
+    get:
+      tags: [OParl Body]
+      summary: Einzelne Koerperschaft abrufen
+      operationId: getBody
+      parameters:
+        - name: body_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Body-Objekt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlBody'
+        '404':
+          description: Body nicht gefunden
+
+  /api/v1/oparl/body/{body_id}/legislative-term:
+    get:
+      tags: [OParl LegislativeTerm]
+      summary: Wahlperioden einer Koerperschaft
+      operationId: listLegislativeTerms
+      parameters:
+        - $ref: '#/components/parameters/BodyId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Wahlperioden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/legislative-term/{term_id}:
+    get:
+      tags: [OParl LegislativeTerm]
+      summary: Einzelne Wahlperiode abrufen
+      operationId: getLegislativeTerm
+      parameters:
+        - name: term_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Wahlperiode
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlLegislativeTerm'
+        '404':
+          description: Wahlperiode nicht gefunden
+
+  /api/v1/oparl/body/{body_id}/organization:
+    get:
+      tags: [OParl Organization]
+      summary: Gremien und Organisationen einer Koerperschaft
+      operationId: listOrganizations
+      parameters:
+        - $ref: '#/components/parameters/BodyId'
+        - name: organization_type
+          in: query
+          description: Filter nach Typ (committee, faction, administration)
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Organisationen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/organization/{org_id}:
+    get:
+      tags: [OParl Organization]
+      summary: Einzelne Organisation abrufen
+      operationId: getOrganization
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Organisation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlOrganization'
+        '404':
+          description: Organisation nicht gefunden
+
+  /api/v1/oparl/body/{body_id}/person:
+    get:
+      tags: [OParl Person]
+      summary: Personen einer Koerperschaft
+      operationId: listPersons
+      parameters:
+        - $ref: '#/components/parameters/BodyId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Personen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/person/{person_id}:
+    get:
+      tags: [OParl Person]
+      summary: Einzelne Person abrufen
+      operationId: getPerson
+      parameters:
+        - name: person_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Person
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlPerson'
+        '404':
+          description: Person nicht gefunden
+
+  /api/v1/oparl/organization/{org_id}/membership:
+    get:
+      tags: [OParl Membership]
+      summary: Mitgliedschaften einer Organisation
+      operationId: listMembershipsByOrg
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Mitgliedschaften
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/person/{person_id}/membership:
+    get:
+      tags: [OParl Membership]
+      summary: Mitgliedschaften einer Person
+      operationId: listMembershipsByPerson
+      parameters:
+        - name: person_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Mitgliedschaften
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/membership/{membership_id}:
+    get:
+      tags: [OParl Membership]
+      summary: Einzelne Mitgliedschaft abrufen
+      operationId: getMembership
+      parameters:
+        - name: membership_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Mitgliedschaft
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlMembership'
+        '404':
+          description: Mitgliedschaft nicht gefunden
+
+  /api/v1/oparl/body/{body_id}/meeting:
+    get:
+      tags: [OParl Meeting]
+      summary: Sitzungen einer Koerperschaft
+      operationId: listMeetings
+      parameters:
+        - $ref: '#/components/parameters/BodyId'
+        - name: meeting_state
+          in: query
+          description: Filter nach Sitzungsstatus
+          schema:
+            type: string
+        - name: date_from
+          in: query
+          description: Start ab Datum (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          description: Start bis Datum (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Sitzungen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/meeting/{meeting_id}:
+    get:
+      tags: [OParl Meeting]
+      summary: Einzelne Sitzung abrufen
+      operationId: getMeeting
+      parameters:
+        - name: meeting_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sitzung
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlMeeting'
+        '404':
+          description: Sitzung nicht gefunden
+
+  /api/v1/oparl/meeting/{meeting_id}/agenda-item:
+    get:
+      tags: [OParl AgendaItem]
+      summary: Tagesordnungspunkte einer Sitzung
+      operationId: listAgendaItems
+      parameters:
+        - name: meeting_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte TOPs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/agenda-item/{item_id}:
+    get:
+      tags: [OParl AgendaItem]
+      summary: Einzelnen TOP abrufen
+      operationId: getAgendaItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Tagesordnungspunkt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlAgendaItem'
+        '404':
+          description: TOP nicht gefunden
+
+  /api/v1/oparl/body/{body_id}/paper:
+    get:
+      tags: [OParl Paper]
+      summary: Vorlagen und Drucksachen einer Koerperschaft
+      operationId: listPapers
+      parameters:
+        - $ref: '#/components/parameters/BodyId'
+        - name: paper_type
+          in: query
+          description: Filter nach Vorlagentyp
+          schema:
+            type: string
+        - name: reference
+          in: query
+          description: Filter nach Drucksachen-Nummer
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Vorlagen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/paper/{paper_id}:
+    get:
+      tags: [OParl Paper]
+      summary: Einzelne Vorlage abrufen
+      operationId: getPaper
+      parameters:
+        - name: paper_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Vorlage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlPaper'
+        '404':
+          description: Vorlage nicht gefunden
+
+  /api/v1/oparl/paper/{paper_id}/consultation:
+    get:
+      tags: [OParl Consultation]
+      summary: Beratungen einer Vorlage
+      operationId: listConsultations
+      parameters:
+        - name: paper_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginierte Beratungen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+
+  /api/v1/oparl/consultation/{consultation_id}:
+    get:
+      tags: [OParl Consultation]
+      summary: Einzelne Beratung abrufen
+      operationId: getConsultation
+      parameters:
+        - name: consultation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Beratung
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlConsultation'
+        '404':
+          description: Beratung nicht gefunden
+
+  /api/v1/oparl/file/{file_id}:
+    get:
+      tags: [OParl File]
+      summary: Datei-Metadaten abrufen
+      description: Gibt Metadaten zurueck. Fuer den Datei-Inhalt accessUrl/downloadUrl nutzen.
+      operationId: getFile
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Datei-Metadaten
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlFile'
+        '404':
+          description: Datei nicht gefunden
+
+  /api/v1/oparl/location/{location_id}:
+    get:
+      tags: [OParl Location]
+      summary: Ort abrufen
+      operationId: getLocation
+      parameters:
+        - name: location_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ort
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlLocation'
+        '404':
+          description: Ort nicht gefunden
+
+  /api/v1/oparl/search:
+    get:
+      tags: [Search]
+      summary: Volltextsuche ueber alle OParl-Objekte
+      description: Nutzt Elasticsearch fuer schnelle, relevanzbasierte Suche.
+      operationId: searchOParl
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Suchbegriff (min. 2 Zeichen)
+          schema:
+            type: string
+            minLength: 2
+        - name: object_type
+          in: query
+          description: Filter nach OParl-Typ
+          schema:
+            type: string
+            enum: [body, organization, person, meeting, paper, file]
+        - name: body_id
+          in: query
+          description: Filter nach Koerperschaft
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Suchergebnisse
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResult'
+
+  /api/v1/admin/tenants:
+    get:
+      tags: [Admin]
+      summary: Alle Mandanten auflisten
+      operationId: listTenants
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Mandantenliste
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tenant'
+    post:
+      tags: [Admin]
+      summary: Neuen Mandanten erstellen
+      description: Erstellt einen neuen Mandanten mit eigenem PostgreSQL-Schema.
+      operationId: createTenant
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantCreate'
+      responses:
+        '201':
+          description: Mandant erstellt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '409':
+          description: Mandant mit diesem Slug existiert bereits
+
+  /api/v1/admin/tenants/{tenant_id}:
+    get:
+      tags: [Admin]
+      summary: Mandant-Details abrufen
+      operationId: getTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Mandant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '404':
+          description: Mandant nicht gefunden
+    patch:
+      tags: [Admin]
+      summary: Mandant aktualisieren
+      operationId: updateTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUpdate'
+      responses:
+        '200':
+          description: Mandant aktualisiert
+    delete:
+      tags: [Admin]
+      summary: Mandant deaktivieren (Soft-Delete)
+      operationId: deactivateTenant
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Mandant deaktiviert
+
+  /api/v1/admin/status:
+    get:
+      tags: [Admin]
+      summary: Systemstatus abrufen
+      operationId: getSystemStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Systemstatus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [operational, degraded, maintenance]
+                  active_tenants:
+                    type: integer
+                  schemas:
+                    type: array
+                    items:
+                      type: string
+
+  /api/admin/migration/oparl:
+    post:
+      tags: [Migration]
+      summary: Daten von OParl-API importieren
+      operationId: migrateFromOParl
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: source_url
+          in: query
+          required: true
+          description: URL der Quell-OParl-API
+          schema:
+            type: string
+            format: uri
+        - name: tenant_id
+          in: query
+          description: Ziel-Mandant
+          schema:
+            type: string
+            default: default
+      responses:
+        '200':
+          description: Migrationsergebnis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationResult'
+
+  /api/admin/migration/allris/csv:
+    post:
+      tags: [Migration]
+      summary: ALLRIS CSV-Daten importieren
+      operationId: migrateFromAllrisCSV
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: tenant_id
+          in: query
+          description: Ziel-Mandant
+          schema:
+            type: string
+            default: default
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                gremien:
+                  type: string
+                  format: binary
+                  description: CSV mit Gremien
+                personen:
+                  type: string
+                  format: binary
+                  description: CSV mit Personen
+                vorlagen:
+                  type: string
+                  format: binary
+                  description: CSV mit Vorlagen
+                sitzungen:
+                  type: string
+                  format: binary
+                  description: CSV mit Sitzungen
+      responses:
+        '200':
+          description: Importergebnis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationResult'
+        '400':
+          description: Keine CSV-Dateien hochgeladen
+
+  /api/admin/migration/status:
+    get:
+      tags: [Migration]
+      summary: Unterstuetzte Migrationsquellen
+      operationId: getMigrationStatus
+      responses:
+        '200':
+          description: Liste unterstuetzter Quellen
+
+  /api/v1/workflow/workflows:
+    get:
+      tags: [Workflow]
+      summary: Freigabe-Workflows auflisten
+      operationId: listWorkflows
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Workflow-Liste
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Workflow'
+    post:
+      tags: [Workflow]
+      summary: Neuen Freigabe-Workflow erstellen
+      operationId: createWorkflow
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowCreate'
+      responses:
+        '201':
+          description: Workflow erstellt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+
+  /api/v1/workflow/workflows/{workflow_id}:
+    get:
+      tags: [Workflow]
+      summary: Workflow mit Schritten abrufen
+      operationId: getWorkflow
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Workflow mit Schritten
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowDetail'
+        '404':
+          description: Workflow nicht gefunden
+
+  /api/v1/workflow/instances:
+    post:
+      tags: [Workflow]
+      summary: Workflow fuer Vorlage starten
+      operationId: startWorkflowInstance
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [paper_id, workflow_id]
+              properties:
+                paper_id:
+                  type: string
+                  format: uuid
+                workflow_id:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Workflow-Instanz gestartet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowInstance'
+
+  /api/v1/workflow/instances/{instance_id}:
+    get:
+      tags: [Workflow]
+      summary: Workflow-Instanz mit Entscheidungshistorie
+      operationId: getWorkflowInstance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: instance_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Instanz mit Entscheidungen
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowInstanceDetail'
+        '404':
+          description: Instanz nicht gefunden
+
+  /api/v1/workflow/instances/{instance_id}/decide:
+    post:
+      tags: [Workflow]
+      summary: Entscheidung treffen (genehmigen/ablehnen)
+      operationId: makeDecision
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: instance_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision:
+                  type: string
+                  enum: [approved, rejected, returned]
+                comment:
+                  type: string
+      responses:
+        '200':
+          description: Entscheidung gespeichert
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                  current_step_id:
+                    type: string
+                    format: uuid
+                    nullable: true
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Page:
+      name: page
+      in: query
+      description: Seitennummer (ab 1)
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPage:
+      name: per_page
+      in: query
+      description: Eintraege pro Seite (max. 100)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    BodyId:
+      name: body_id
+      in: path
+      required: true
+      description: Koerperschafts-ID
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    OParlSystem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: https://schema.oparl.org/1.1/System
+        id:
+          type: string
+          format: uri
+        oparlVersion:
+          type: string
+          example: https://schema.oparl.org/1.1/
+        name:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        contactName:
+          type: string
+        website:
+          type: string
+          format: uri
+        vendor:
+          type: string
+          format: uri
+        product:
+          type: string
+          format: uri
+        body:
+          type: string
+          format: uri
+          description: URL zur Body-Liste
+
+    OParlBody:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        name:
+          type: string
+        shortName:
+          type: string
+        website:
+          type: string
+          format: uri
+        license:
+          type: string
+          format: uri
+        ags:
+          type: string
+          description: Amtlicher Gemeindeschluessel
+        equivalent:
+          type: array
+          items:
+            type: string
+            format: uri
+        organization:
+          type: string
+          format: uri
+        person:
+          type: string
+          format: uri
+        meeting:
+          type: string
+          format: uri
+        paper:
+          type: string
+          format: uri
+        legislativeTerm:
+          type: string
+          format: uri
+        classification:
+          type: string
+        location:
+          $ref: '#/components/schemas/OParlLocation'
+
+    OParlLegislativeTerm:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        body:
+          type: string
+          format: uri
+        name:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    OParlOrganization:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        body:
+          type: string
+          format: uri
+        name:
+          type: string
+        shortName:
+          type: string
+        organizationType:
+          type: string
+          enum: [committee, faction, administration, institution, other]
+        post:
+          type: array
+          items:
+            type: string
+        membership:
+          type: string
+          format: uri
+        meeting:
+          type: string
+          format: uri
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        location:
+          $ref: '#/components/schemas/OParlLocation'
+
+    OParlPerson:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        body:
+          type: string
+          format: uri
+        name:
+          type: string
+        familyName:
+          type: string
+        givenName:
+          type: string
+        formOfAddress:
+          type: string
+        title:
+          type: array
+          items:
+            type: string
+        gender:
+          type: string
+        phone:
+          type: array
+          items:
+            type: string
+        email:
+          type: array
+          items:
+            type: string
+            format: email
+        status:
+          type: array
+          items:
+            type: string
+        membership:
+          type: string
+          format: uri
+
+    OParlMembership:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        person:
+          type: string
+          format: uri
+        organization:
+          type: string
+          format: uri
+        role:
+          type: string
+        votingRight:
+          type: boolean
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    OParlMeeting:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        name:
+          type: string
+        meetingState:
+          type: string
+          enum: [scheduled, cancelled, completed]
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        location:
+          $ref: '#/components/schemas/OParlLocation'
+        organization:
+          type: array
+          items:
+            type: string
+            format: uri
+        participant:
+          type: array
+          items:
+            type: string
+            format: uri
+        invitation:
+          $ref: '#/components/schemas/OParlFile'
+        resultsProtocol:
+          $ref: '#/components/schemas/OParlFile'
+        agendaItem:
+          type: string
+          format: uri
+
+    OParlAgendaItem:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        meeting:
+          type: string
+          format: uri
+        number:
+          type: string
+        name:
+          type: string
+        public:
+          type: boolean
+        result:
+          type: string
+        resolutionText:
+          type: string
+        consultation:
+          type: string
+          format: uri
+        resolutionFile:
+          $ref: '#/components/schemas/OParlFile'
+        auxiliaryFile:
+          type: array
+          items:
+            $ref: '#/components/schemas/OParlFile'
+
+    OParlPaper:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        body:
+          type: string
+          format: uri
+        name:
+          type: string
+        reference:
+          type: string
+          description: Drucksachen-Nummer
+        date:
+          type: string
+          format: date
+        paperType:
+          type: string
+        mainFile:
+          $ref: '#/components/schemas/OParlFile'
+        auxiliaryFile:
+          type: array
+          items:
+            $ref: '#/components/schemas/OParlFile'
+        relatedPaper:
+          type: array
+          items:
+            type: string
+            format: uri
+        consultation:
+          type: string
+          format: uri
+        originatorPerson:
+          type: array
+          items:
+            type: string
+            format: uri
+        originatorOrganization:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    OParlConsultation:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        paper:
+          type: string
+          format: uri
+        agendaItem:
+          type: string
+          format: uri
+        meeting:
+          type: string
+          format: uri
+        organization:
+          type: array
+          items:
+            type: string
+            format: uri
+        authoritative:
+          type: boolean
+        role:
+          type: string
+
+    OParlFile:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        name:
+          type: string
+        fileName:
+          type: string
+        mimeType:
+          type: string
+        date:
+          type: string
+          format: date
+        size:
+          type: integer
+        sha1Checksum:
+          type: string
+        text:
+          type: string
+        accessUrl:
+          type: string
+          format: uri
+        downloadUrl:
+          type: string
+          format: uri
+
+    OParlLocation:
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uri
+        description:
+          type: string
+        locality:
+          type: string
+        postalCode:
+          type: string
+        streetAddress:
+          type: string
+        subLocality:
+          type: string
+        room:
+          type: string
+        geojson:
+          type: object
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+
+    PaginatedBodyResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OParlBody'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+
+    PaginationInfo:
+      type: object
+      properties:
+        totalElements:
+          type: integer
+        elementsPerPage:
+          type: integer
+        currentPage:
+          type: integer
+        totalPages:
+          type: integer
+
+    PaginationLinks:
+      type: object
+      properties:
+        self:
+          type: string
+          format: uri
+        first:
+          type: string
+          format: uri
+        prev:
+          type: string
+          format: uri
+          nullable: true
+        next:
+          type: string
+          format: uri
+          nullable: true
+        last:
+          type: string
+          format: uri
+
+    SearchResult:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              id:
+                type: string
+                format: uri
+              name:
+                type: string
+              highlight:
+                type: string
+              score:
+                type: number
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+        name:
+          type: string
+        ags:
+          type: string
+          nullable: true
+        domain:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+        is_trial:
+          type: boolean
+        schema_created:
+          type: boolean
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        contact_name:
+          type: string
+          nullable: true
+
+    TenantCreate:
+      type: object
+      required: [slug, name]
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        ags:
+          type: string
+        domain:
+          type: string
+        contact_email:
+          type: string
+          format: email
+        contact_name:
+          type: string
+        config:
+          type: object
+
+    TenantUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        domain:
+          type: string
+        contact_email:
+          type: string
+        contact_name:
+          type: string
+        config:
+          type: object
+        is_active:
+          type: boolean
+
+    MigrationResult:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, partial, error]
+        imported:
+          type: object
+          additionalProperties:
+            type: integer
+        errors:
+          type: array
+          items:
+            type: string
+        duration_seconds:
+          type: number
+
+    Workflow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+
+    WorkflowCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        steps:
+          type: array
+          items:
+            type: object
+            required: [name, order]
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              order:
+                type: integer
+              required_role:
+                type: string
+              required_organization_id:
+                type: string
+                format: uuid
+              auto_advance:
+                type: boolean
+                default: false
+
+    WorkflowDetail:
+      allOf:
+        - $ref: '#/components/schemas/Workflow'
+        - type: object
+          properties:
+            steps:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  order:
+                    type: integer
+                  required_role:
+                    type: string
+                  auto_advance:
+                    type: boolean
+
+    WorkflowInstance:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        paper_id:
+          type: string
+          format: uuid
+        workflow_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [draft, submitted, in_review, approved, rejected]
+        current_step_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    WorkflowInstanceDetail:
+      allOf:
+        - $ref: '#/components/schemas/WorkflowInstance'
+        - type: object
+          properties:
+            decisions:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  step_id:
+                    type: string
+                    format: uuid
+                  decided_by:
+                    type: string
+                    format: uuid
+                  decision:
+                    type: string
+                    enum: [approved, rejected, returned]
+                  comment:
+                    type: string
+                    nullable: true
+                  decided_at:
+                    type: string
+                    format: date-time
