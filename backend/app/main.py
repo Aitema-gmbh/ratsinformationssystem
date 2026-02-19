@@ -11,7 +11,7 @@ import time
 import os
 
 from app.database import init_db
-from app.routers import oparl
+from app.routers import oparl, export
 
 
 @asynccontextmanager
@@ -52,6 +52,7 @@ async def add_process_time(request: Request, call_next):
 
 # Include routers
 app.include_router(oparl.router)
+app.include_router(export.router)
 
 
 # Health check

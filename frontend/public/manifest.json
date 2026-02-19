@@ -1,0 +1,47 @@
+{
+  "name": "aitema|Rats",
+  "short_name": "Rats",
+  "description": "Offenes Ratsinformationssystem - OParl 1.1 kompatibel",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1e40af",
+  "background_color": "#f9fafb",
+  "orientation": "any",
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["government", "politics"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Sitzungen",
+      "short_name": "Sitzungen",
+      "url": "/sitzungen",
+      "description": "Alle Sitzungen anzeigen"
+    },
+    {
+      "name": "Personen",
+      "short_name": "Personen",
+      "url": "/personen",
+      "description": "Mandatstraeger und Personen"
+    },
+    {
+      "name": "Gremien",
+      "short_name": "Gremien",
+      "url": "/gremien",
+      "description": "Gremien und Ausschuesse"
+    }
+  ]
+}

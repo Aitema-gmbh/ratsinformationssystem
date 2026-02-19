@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aitema|Rats – Das moderne Ratsinformationssystem</title>
+    <meta name="description" content="OParl 1.1 konformes Ratsinformationssystem. Open Source, barrierefrei, mit Bürgerportal und Mandatsträger-App.">
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --accent: #38a169;
+            --accent-hover: #2f855a;
+            --bg: #f7fafc;
+            --bg-alt: #ffffff;
+            --text: #1a202c;
+            --text-muted: #4a5568;
+            --border: #e2e8f0;
+            --shadow: 0 4px 24px rgba(0,0,0,0.08);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: var(--text); line-height: 1.7; }
+        .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Navigation */
+        nav { background: var(--primary); padding: 16px 0; position: sticky; top: 0; z-index: 100; }
+        nav .container { display: flex; justify-content: space-between; align-items: center; }
+        .logo { color: #fff; font-size: 1.4rem; font-weight: 700; text-decoration: none; }
+        .logo span { color: var(--accent); }
+        nav ul { list-style: none; display: flex; gap: 28px; }
+        nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+        nav a:hover { color: #fff; }
+
+        /* Hero */
+        .hero { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: #fff; padding: 100px 0 80px; text-align: center; }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; line-height: 1.2; }
+        .hero p { font-size: 1.25rem; opacity: 0.9; max-width: 640px; margin: 0 auto 40px; }
+        .hero-badges { display: flex; gap: 12px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+        .badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; }
+        .cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .btn { display: inline-block; padding: 14px 32px; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,0.5); }
+        .btn-outline:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+        /* Sections */
+        section { padding: 80px 0; }
+        section:nth-child(even) { background: var(--bg); }
+        .section-title { text-align: center; margin-bottom: 56px; }
+        .section-title h2 { font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+        .section-title p { color: var(--text-muted); font-size: 1.1rem; max-width: 560px; margin: 0 auto; }
+
+        /* Features Grid */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; }
+        .feature-card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; transition: box-shadow 0.2s, transform 0.2s; }
+        .feature-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+        .feature-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 1.4rem; color: #fff; }
+        .feature-card h3 { font-size: 1.15rem; margin-bottom: 8px; color: var(--primary); }
+        .feature-card p { color: var(--text-muted); font-size: 0.95rem; }
+
+        /* Pricing */
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 28px; }
+        .price-card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 36px; text-align: center; position: relative; transition: box-shadow 0.2s; }
+        .price-card.featured { border: 2px solid var(--accent); box-shadow: var(--shadow); }
+        .price-card.featured::before { content: "Empfohlen"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 4px 16px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+        .price-card h3 { font-size: 1.3rem; color: var(--primary); margin-bottom: 8px; }
+        .price { font-size: 2.2rem; font-weight: 800; color: var(--text); margin: 16px 0; }
+        .price small { font-size: 0.9rem; font-weight: 400; color: var(--text-muted); }
+        .price-features { list-style: none; text-align: left; margin: 24px 0; }
+        .price-features li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; color: var(--text-muted); }
+        .price-features li::before { content: "\2713"; color: var(--accent); font-weight: 700; margin-right: 10px; }
+
+        /* Testimonial */
+        .testimonial { background: var(--primary); color: #fff; padding: 60px 0; text-align: center; }
+        .testimonial blockquote { font-size: 1.3rem; font-style: italic; max-width: 700px; margin: 0 auto 20px; line-height: 1.6; opacity: 0.95; }
+        .testimonial cite { font-style: normal; opacity: 0.7; font-size: 0.95rem; }
+
+        /* CTA Section */
+        .cta-section { background: linear-gradient(135deg, var(--accent) 0%, #276749 100%); color: #fff; padding: 60px 0; text-align: center; }
+        .cta-section h2 { font-size: 2rem; margin-bottom: 12px; }
+        .cta-section p { opacity: 0.9; margin-bottom: 28px; font-size: 1.1rem; }
+        .btn-white { background: #fff; color: var(--primary); }
+        .btn-white:hover { background: #f0f0f0; }
+
+        /* Footer */
+        footer { background: var(--primary); color: rgba(255,255,255,0.7); padding: 40px 0; text-align: center; font-size: 0.9rem; }
+        footer a { color: rgba(255,255,255,0.85); text-decoration: none; }
+        footer a:hover { color: #fff; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .hero { padding: 60px 0 50px; }
+            section { padding: 50px 0; }
+            nav ul { display: none; }
+            .features-grid, .pricing-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">aitema|<span>Rats</span></a>
+            <ul>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Preise</a></li>
+                <li><a href="#migration">Migration</a></li>
+                <li><a href="mailto:info@aitema.de">Kontakt</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Transparenz f&uuml;r Ihre Kommune</h1>
+            <p>Das moderne Ratsinformationssystem &ndash; OParl 1.1 konform, Open Source und barrierefrei.</p>
+            <div class="hero-badges">
+                <span class="badge">OParl 1.1</span>
+                <span class="badge">AGPLv3</span>
+                <span class="badge">WCAG 2.1 AA</span>
+                <span class="badge">Docker</span>
+            </div>
+            <div class="cta-group">
+                <a href="#demo" class="btn btn-primary">Live-Demo starten</a>
+                <a href="#pricing" class="btn btn-outline">Community Edition</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Alles f&uuml;r die digitale Ratsarbeit</h2>
+                <p>Von der Sitzungsvorbereitung bis zur B&uuml;rgerbeteiligung &ndash; alles in einer Plattform.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">&#9741;</div>
+                    <h3>OParl 1.1 Standard</h3>
+                    <p>Vollst&auml;ndig OParl-konforme API f&uuml;r offene Ratsdaten. Maschinenlesbar, standardisiert und interoperabel mit anderen Systemen.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#9782;</div>
+                    <h3>B&uuml;rgerportal</h3>
+                    <p>Barrierefreier Zugang zu Sitzungen, Vorlagen und Beschl&uuml;ssen. WCAG 2.1 AA konform, responsive und ohne Anmeldung nutzbar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#9749;</div>
+                    <h3>Mandatstr&auml;ger-App</h3>
+                    <p>Progressive Web App f&uuml;r Ratsmitglieder. Sitzungskalender, Vorlagen lesen, Abstimmungen &ndash; auch offline verf&uuml;gbar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128194;</div>
+                    <h3>DMS / eAkte</h3>
+                    <p>Integration mit d.velop und XDomea. Vorlagen und Beschl&uuml;sse flie&szlig;en nahtlos ins Dokumentenmanagementsystem.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#8644;</div>
+                    <h3>ALLRIS &amp; SessionNet Migration</h3>
+                    <p>Vollst&auml;ndiger Import aus bestehenden Systemen. Sitzungen, Vorlagen, Gremien und Dokumente werden automatisch &uuml;bernommen.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">&#128269;</div>
+                    <h3>Volltextsuche</h3>
+                    <p>Elasticsearch-basierte Suche &uuml;ber alle Dokumente, Vorlagen und Beschl&uuml;sse. OCR f&uuml;r gescannte PDFs inklusive.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing">
+        <div class="container">
+            <div class="section-title">
+                <h2>Transparent &amp; fair</h2>
+                <p>Von der kleinen Gemeinde bis zur Gro&szlig;stadt &ndash; das passende Modell.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <h3>Community</h3>
+                    <div class="price">Kostenlos</div>
+                    <p style="color:var(--text-muted);margin-bottom:16px;">Self-Hosted, AGPLv3</p>
+                    <ul class="price-features">
+                        <li>Voller Funktionsumfang</li>
+                        <li>OParl 1.1 API</li>
+                        <li>B&uuml;rgerportal</li>
+                        <li>Docker Deployment</li>
+                        <li>Community-Support (GitHub)</li>
+                        <li>Eigene Infrastruktur</li>
+                    </ul>
+                    <a href="https://github.com/aitema/rats" class="btn btn-primary" style="width:100%;">Auf GitHub starten</a>
+                </div>
+                <div class="price-card featured">
+                    <h3>Managed</h3>
+                    <div class="price">ab 499&euro;<small>/Monat</small></div>
+                    <p style="color:var(--text-muted);margin-bottom:16px;">Hosting &amp; Support inklusive</p>
+                    <ul class="price-features">
+                        <li>Alles aus Community</li>
+                        <li>Managed Hosting (DE)</li>
+                        <li>Automatische Updates</li>
+                        <li>E-Mail &amp; Telefon-Support</li>
+                        <li>Tägliche Backups</li>
+                        <li>SSL &amp; Domain-Setup</li>
+                    </ul>
+                    <a href="mailto:info@aitema.de?subject=aitema|Rats%20Managed" class="btn btn-primary" style="width:100%;">Angebot anfordern</a>
+                </div>
+                <div class="price-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">Auf Anfrage</div>
+                    <p style="color:var(--text-muted);margin-bottom:16px;">SLA, Schulungen, Migration</p>
+                    <ul class="price-features">
+                        <li>Alles aus Managed</li>
+                        <li>SLA mit Reaktionszeiten</li>
+                        <li>ALLRIS/SessionNet Migration</li>
+                        <li>Schulungen vor Ort</li>
+                        <li>Individuelle Anpassungen</li>
+                        <li>Dedizierte Infrastruktur</li>
+                    </ul>
+                    <a href="mailto:info@aitema.de?subject=aitema|Rats%20Enterprise" class="btn btn-primary" style="width:100%;">Gespr&auml;ch vereinbaren</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonial">
+        <blockquote>&bdquo;Mit aitema|Rats haben wir endlich ein System, das sowohl f&uuml;r B&uuml;rger als auch f&uuml;r unsere Ratsmitglieder intuitiv funktioniert. Die OParl-Schnittstelle war f&uuml;r uns entscheidend.&ldquo;</blockquote>
+        <cite>&mdash; Digitalisierungsbeauftragter, Musterstadt</cite>
+    </section>
+
+    <section id="migration" style="background:var(--bg);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Reibungslose Migration</h2>
+                <p>Wechseln Sie ohne Datenverlust von Ihrem bestehenden System.</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;text-align:center;">
+                <div style="padding:32px;background:var(--bg-alt);border-radius:var(--radius);border:1px solid var(--border);">
+                    <div style="font-size:2rem;margin-bottom:12px;">1</div>
+                    <h3 style="margin-bottom:8px;color:var(--primary);">Analyse</h3>
+                    <p style="color:var(--text-muted);font-size:0.95rem;">Wir analysieren Ihr bestehendes System und erstellen einen Migrationsplan.</p>
+                </div>
+                <div style="padding:32px;background:var(--bg-alt);border-radius:var(--radius);border:1px solid var(--border);">
+                    <div style="font-size:2rem;margin-bottom:12px;">2</div>
+                    <h3 style="margin-bottom:8px;color:var(--primary);">Import</h3>
+                    <p style="color:var(--text-muted);font-size:0.95rem;">Automatisierter Import aller Sitzungen, Vorlagen, Gremien und Dokumente.</p>
+                </div>
+                <div style="padding:32px;background:var(--bg-alt);border-radius:var(--radius);border:1px solid var(--border);">
+                    <div style="font-size:2rem;margin-bottom:12px;">3</div>
+                    <h3 style="margin-bottom:8px;color:var(--primary);">Go-Live</h3>
+                    <p style="color:var(--text-muted);font-size:0.95rem;">Parallelbetrieb, Schulung und nahtloser &Uuml;bergang in den Produktivbetrieb.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <h2>Bereit f&uuml;r mehr Transparenz?</h2>
+            <p>Testen Sie aitema|Rats in unter 5 Minuten mit Docker.</p>
+            <a href="#demo" class="btn btn-white">Live-Demo starten</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 aitema GmbH &middot; <a href="mailto:info@aitema.de">info@aitema.de</a> &middot; <a href="https://aitema.de/impressum">Impressum</a> &middot; <a href="https://aitema.de/datenschutz">Datenschutz</a></p>
+        </div>
+    </footer>
+</body>
+</html>
