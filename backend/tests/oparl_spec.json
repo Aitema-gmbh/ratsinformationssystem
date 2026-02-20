@@ -1,0 +1,311 @@
+{
+  "_comment": "OParl 1.1 Object Type Specification - based on https://schema.oparl.org/1.1/",
+  "_version": "1.1",
+  "_context": "https://schema.oparl.org/1.1/",
+  "types": {
+    "System": {
+      "type_url": "https://schema.oparl.org/1.1/System",
+      "required_fields": ["id", "type", "oparl_version", "body"],
+      "optional_fields": ["name", "website", "contact_email", "contact_name", "vendor", "product", "other_oparl_versions"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "oparl_version": "url",
+        "body": "url",
+        "website": "url",
+        "contact_email": "email",
+        "other_oparl_versions": "url_array"
+      },
+      "relationships": {
+        "body": {"target": "Body", "cardinality": "url_list"}
+      }
+    },
+    "Body": {
+      "type_url": "https://schema.oparl.org/1.1/Body",
+      "required_fields": ["id", "type", "system", "name", "organization", "person", "meeting", "paper", "legislative_term"],
+      "optional_fields": ["short_name", "website", "license", "keyword", "created", "modified", "deleted", "contact_email", "contact_name", "ags", "rgs", "equivalent_body", "classification", "body_type", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "system": "url",
+        "organization": "url",
+        "person": "url",
+        "meeting": "url",
+        "paper": "url",
+        "legislative_term": "url",
+        "equivalent_body": "url_array",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "system": {"target": "System", "cardinality": "single"},
+        "organization": {"target": "Organization", "cardinality": "url_list"},
+        "person": {"target": "Person", "cardinality": "url_list"},
+        "meeting": {"target": "Meeting", "cardinality": "url_list"},
+        "paper": {"target": "Paper", "cardinality": "url_list"},
+        "legislative_term": {"target": "LegislativeTerm", "cardinality": "url_list"}
+      }
+    },
+    "Organization": {
+      "type_url": "https://schema.oparl.org/1.1/Organization",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["name", "short_name", "body", "organization_type", "classification", "start_date", "end_date", "membership", "location", "external_body", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "body": "url",
+        "location": "url",
+        "membership": "url_array",
+        "external_body": "url",
+        "start_date": "date",
+        "end_date": "date",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "body": {"target": "Body", "cardinality": "single"},
+        "membership": {"target": "Membership", "cardinality": "url_array"},
+        "location": {"target": "Location", "cardinality": "single"}
+      }
+    },
+    "Person": {
+      "type_url": "https://schema.oparl.org/1.1/Person",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["name", "family_name", "given_name", "form_of_address", "affix", "title", "gender", "phone", "email", "status", "membership", "life", "life_source", "location", "body", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "body": "url",
+        "membership": "url_array",
+        "location": "url",
+        "title": "string_array",
+        "phone": "string_array",
+        "email": "string_array",
+        "status": "string_array",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "body": {"target": "Body", "cardinality": "single"},
+        "membership": {"target": "Membership", "cardinality": "url_array"},
+        "location": {"target": "Location", "cardinality": "single"}
+      }
+    },
+    "Membership": {
+      "type_url": "https://schema.oparl.org/1.1/Membership",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["person", "organization", "role", "voting_right", "start_date", "end_date", "on_behalf_of", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "person": "url",
+        "organization": "url",
+        "on_behalf_of": "url",
+        "start_date": "date",
+        "end_date": "date",
+        "voting_right": "boolean",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "person": {"target": "Person", "cardinality": "single"},
+        "organization": {"target": "Organization", "cardinality": "single"}
+      }
+    },
+    "Meeting": {
+      "type_url": "https://schema.oparl.org/1.1/Meeting",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["name", "short_name", "meeting_state", "cancelled", "start", "end", "location", "organization", "participant", "invitation", "results_protocol", "verbatim_protocol", "agenda_item", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "location": "url",
+        "organization": "url",
+        "participant": "url_array",
+        "invitation": "url",
+        "results_protocol": "url",
+        "verbatim_protocol": "url",
+        "agenda_item": "url_array",
+        "start": "datetime",
+        "end": "datetime",
+        "cancelled": "boolean",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "location": {"target": "Location", "cardinality": "single"},
+        "organization": {"target": "Organization", "cardinality": "single"},
+        "participant": {"target": "Person", "cardinality": "url_array"},
+        "invitation": {"target": "File", "cardinality": "single"},
+        "results_protocol": {"target": "File", "cardinality": "single"},
+        "verbatim_protocol": {"target": "File", "cardinality": "single"},
+        "agenda_item": {"target": "AgendaItem", "cardinality": "url_array"}
+      }
+    },
+    "AgendaItem": {
+      "type_url": "https://schema.oparl.org/1.1/AgendaItem",
+      "required_fields": ["id", "type", "meeting"],
+      "optional_fields": ["name", "short_name", "number", "order", "public", "result", "resolution_text", "resolution_file", "consultation", "start", "end", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "meeting": "url",
+        "resolution_file": "url",
+        "consultation": "url",
+        "start": "datetime",
+        "end": "datetime",
+        "public": "boolean",
+        "order": "integer",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "meeting": {"target": "Meeting", "cardinality": "single"},
+        "resolution_file": {"target": "File", "cardinality": "single"},
+        "consultation": {"target": "Consultation", "cardinality": "single"}
+      }
+    },
+    "Paper": {
+      "type_url": "https://schema.oparl.org/1.1/Paper",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["name", "short_name", "body", "reference", "date", "paper_type", "main_file", "auxiliary_file", "originator_person", "originator_organization", "consultation", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "body": "url",
+        "main_file": "url",
+        "auxiliary_file": "url_array",
+        "originator_person": "url_array",
+        "originator_organization": "url_array",
+        "consultation": "url_array",
+        "date": "date",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "body": {"target": "Body", "cardinality": "single"},
+        "main_file": {"target": "File", "cardinality": "single"},
+        "auxiliary_file": {"target": "File", "cardinality": "url_array"},
+        "originator_person": {"target": "Person", "cardinality": "url_array"},
+        "originator_organization": {"target": "Organization", "cardinality": "url_array"},
+        "consultation": {"target": "Consultation", "cardinality": "url_array"}
+      }
+    },
+    "Consultation": {
+      "type_url": "https://schema.oparl.org/1.1/Consultation",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["paper", "agenda_item", "organization", "authoritative", "role", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "paper": "url",
+        "agenda_item": "url",
+        "organization": "url",
+        "authoritative": "boolean",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "paper": {"target": "Paper", "cardinality": "single"},
+        "agenda_item": {"target": "AgendaItem", "cardinality": "single"},
+        "organization": {"target": "Organization", "cardinality": "single"}
+      }
+    },
+    "File": {
+      "type_url": "https://schema.oparl.org/1.1/File",
+      "required_fields": ["id", "type", "access_url"],
+      "optional_fields": ["name", "short_name", "file_name", "mime_type", "size", "sha512_checksum", "text", "download_url", "external_service_url", "master_file", "derivative_file", "file_license", "meeting", "agenda_item", "paper", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "access_url": "url",
+        "download_url": "url",
+        "external_service_url": "url",
+        "master_file": "url",
+        "derivative_file": "url_array",
+        "meeting": "url_array",
+        "agenda_item": "url_array",
+        "paper": "url_array",
+        "size": "integer",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "master_file": {"target": "File", "cardinality": "single"},
+        "derivative_file": {"target": "File", "cardinality": "url_array"}
+      }
+    },
+    "Location": {
+      "type_url": "https://schema.oparl.org/1.1/Location",
+      "required_fields": ["id", "type"],
+      "optional_fields": ["description", "street_address", "room", "postal_code", "sub_locality", "locality", "geojson", "bodies", "organizations", "meetings", "papers", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "geojson": "geojson",
+        "bodies": "url_array",
+        "organizations": "url_array",
+        "meetings": "url_array",
+        "papers": "url_array",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {}
+    },
+    "LegislativeTerm": {
+      "type_url": "https://schema.oparl.org/1.1/LegislativeTerm",
+      "required_fields": ["id", "type", "body"],
+      "optional_fields": ["name", "short_name", "start_date", "end_date", "website", "license", "keyword", "created", "modified", "deleted", "web"],
+      "field_types": {
+        "id": "url",
+        "type": "string",
+        "body": "url",
+        "start_date": "date",
+        "end_date": "date",
+        "created": "datetime",
+        "modified": "datetime",
+        "deleted": "boolean"
+      },
+      "relationships": {
+        "body": {"target": "Body", "cardinality": "single"}
+      }
+    }
+  },
+  "pagination": {
+    "required_fields": ["data", "links"],
+    "optional_fields": ["pagination"],
+    "data_type": "array",
+    "links_fields": {
+      "first": "url_or_null",
+      "last": "url_or_null",
+      "next": "url_or_null",
+      "prev": "url_or_null"
+    },
+    "pagination_fields": {
+      "totalElements": "integer",
+      "elementsPerPage": "integer",
+      "currentPage": "integer",
+      "totalPages": "integer"
+    }
+  },
+  "date_formats": {
+    "date": "YYYY-MM-DD",
+    "datetime": "YYYY-MM-DDTHH:MM:SS±HH:MM or YYYY-MM-DDTHH:MM:SSZ",
+    "regex_date": "^\\d{4}-\\d{2}-\\d{2}$",
+    "regex_datetime": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+  },
+  "url_format": {
+    "scheme": ["http", "https"],
+    "regex": "^https?://.+"
+  }
+}
