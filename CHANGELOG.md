@@ -1,39 +1,42 @@
-# Änderungsprotokoll
+# Changelog
 
-Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
-
-Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
-und dieses Projekt hält sich an [Semantische Versionierung](https://semver.org/spec/v2.0.0.html).
+Alle wesentlichen Änderungen an aitema|Rats RIS werden in dieser Datei dokumentiert.
+Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
+Versionierung nach [Semantic Versioning](https://semver.org/).
 
 ## [Unveröffentlicht]
 
+## [1.0.0] – 2025-01-01
+
 ### Hinzugefügt
-- Modernes UI-Design mit aitema Design-System (Inter, Navy/Blue/Accent-Palette)
-- Öffentliches Ratsportal mit filterbarer Tagesordnungs-Ansicht
-- Volltext-Suche über alle Drucksachen und Protokolle
+- OParl 1.1-konforme REST-API für maschinenlesbare Ratsdaten
+- Volltext-Suche in allen Beschlüssen, Vorlagen und Protokollen
+- Gremien- und Ausschussverwaltung
+- Sitzungsmanagement mit Tagesordnungen und Beschlussverfolgung
+- Mitglieder- und Fraktionsverwaltung
+- Öffentliches Transparenzportal für Bürgerinnen und Bürger
 - Kalender-Integration für Sitzungstermine (iCal-Export)
 - Dokumenten-Viewer mit PDF-Vorschau im Browser
-- Rollen-basiertes Zugriffsmanagement (öffentlich / Ratsmitglied / Verwaltung)
-- API-Endpunkte für OParl-Standard (offene Ratsinformations-Schnittstelle)
-- publiccode.yml für opencode.de-Kompatibilität
-- Issue-Templates für Kommunen, Fehlerberichte und Förderanfragen
-- GitHub Actions: Semantic Release, Renovate Bot, Willkommens-Bot
-- End-to-End-Tests mit Playwright
+- Rollenbasiertes Zugriffsmanagement (öffentlich / Ratsmitglied / Verwaltung)
+- Modernes UI mit aitema Design-System (Next.js, Inter-Font, Navy/Blue/Accent-Palette)
+- Skeleton-Loader und optimistische UI-Updates
+- Dark-Mode-Unterstützung
 - Docker-Compose-Deployment inkl. PostgreSQL-Migration
+- Datenbankschema-Dokumentation (OParl 1.1 + Alembic)
+- System-Architektur-Dokumentation
+- OpenAPI 3.1 Spezifikation
+- publiccode.yml für opencode.de-Kompatibilität
+- End-to-End-Tests mit Playwright und axe-core Barrierefreiheits-Audit
+- Issue-Templates für Kommunen, Fehlerberichte und Förderanfragen
+- Renovate-Bot für automatische Dependency-Updates
+- CONTRIBUTING.md mit Entwickler-Richtlinien
+- GitHub Actions CI/CD-Pipeline
 
-### Geändert
-- Dashboard-Layout auf moderne Card-Ansicht umgestellt
-- Suchfunktion auf Elasticsearch-Backend migriert
+### Technischer Stack
+- **Frontend/Backend:** Next.js 14, React, TypeScript
+- **Datenbank:** PostgreSQL via Supabase
+- **Styling:** Tailwind CSS 3.4
+- **Lizenz:** AGPL-3.0
 
-## [1.0.0] – 2024-01-01
-
-### Hinzugefügt
-- Erstveröffentlichung
-- Verwaltung von Ratssitzungen, Tagesordnungen und Beschlüssen
-- Drucksachen-Archiv mit Versionierung
-- Öffentliche Sitzungskalender-Ansicht
-- Bürgerportal für Einsichtnahme ohne Registrierung
-- OParl-1.1-konforme REST-API
-- DSGVO-konformes Benutzer- und Rollenmanagement
-- Docker-Compose-Deployment
-- Mehrsprachige Benutzeroberfläche (Deutsch)
+[Unveröffentlicht]: https://github.com/Aitema-gmbh/ratsinformationssystem/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Aitema-gmbh/ratsinformationssystem/releases/tag/v1.0.0
