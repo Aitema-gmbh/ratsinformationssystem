@@ -1,0 +1,295 @@
+openapi: "3.1.0"
+info:
+  title: aitema|Rats RIS API
+  description: |
+    OParl-konforme REST-API des aitema Ratsinformationssystems.
+    Implementiert den OParl 1.1 Standard für maschinenlesbare Kommunaldaten.
+    Öffentlich zugänglich – keine Authentifizierung für Lesezugriffe erforderlich.
+  version: "1.0.0"
+  contact:
+    name: aitema GmbH
+    email: kontakt@aitema.de
+  license:
+    name: AGPL-3.0
+    url: https://www.gnu.org/licenses/agpl-3.0.html
+
+externalDocs:
+  description: OParl 1.1 Spezifikation
+  url: https://oparl.org/spezifikation/
+
+servers:
+  - url: https://ris.ihre-kommune.de/api/v1
+    description: Produktionsinstanz (OParl-Endpunkt)
+
+tags:
+  - name: Sitzungen
+    description: Ratssitzungen, Ausschusssitzungen
+  - name: Vorlagen
+    description: Beschlussvorlagen und Anträge
+  - name: Gremien
+    description: Rat, Ausschüsse, Gruppen
+  - name: Personen
+    description: Ratsmitglieder und Funktionsträger
+  - name: Suche
+    description: Volltext-Suche
+
+paths:
+  /system:
+    get:
+      tags: [Sitzungen]
+      summary: OParl System-Objekt
+      description: Einstiegspunkt gemäß OParl 1.1 Spezifikation
+      responses:
+        '200':
+          description: System-Objekt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uri
+                  type:
+                    type: string
+                    example: "https://schema.oparl.org/1.1/System"
+                  name:
+                    type: string
+                    example: "Stadtrat Musterstadt"
+                  website:
+                    type: string
+                    format: uri
+                  contactEmail:
+                    type: string
+                    format: email
+                  vendor:
+                    type: string
+                    example: "aitema GmbH"
+                  product:
+                    type: string
+                    example: "https://aitema.de/loesungen/ratsinformationssystem"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /sitzungen:
+    get:
+      tags: [Sitzungen]
+      summary: Liste aller Sitzungen
+      parameters:
+        - name: modified_since
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: gremium
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OParl-kompatible Sitzungsliste
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlListe'
+
+  /sitzungen/{id}:
+    get:
+      tags: [Sitzungen]
+      summary: Einzelne Sitzung abrufen
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Sitzungs-Objekt (OParl)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sitzung'
+
+  /vorlagen:
+    get:
+      tags: [Vorlagen]
+      summary: Liste aller Vorlagen
+      parameters:
+        - name: typ
+          in: query
+          schema:
+            type: string
+            enum: [Antrag, Beschlussvorlage, Anfrage, Mitteilung, Bericht]
+        - name: sitzung
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OParl-kompatible Vorlagenliste
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlListe'
+
+  /gremien:
+    get:
+      tags: [Gremien]
+      summary: Liste aller Gremien
+      responses:
+        '200':
+          description: Liste der Gremien
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gremium'
+
+  /personen:
+    get:
+      tags: [Personen]
+      summary: Mitglieder und Funktionsträger
+      responses:
+        '200':
+          description: Personenliste
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OParlListe'
+
+  /suche:
+    get:
+      tags: [Suche]
+      summary: Volltext-Suche in allen Dokumenten
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Suchbegriff
+        - name: typ
+          in: query
+          schema:
+            type: string
+            enum: [alle, sitzungen, vorlagen, personen]
+        - name: von
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: bis
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Suchergebnisse
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  treffer:
+                    type: integer
+                  ergebnisse:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Suchergebnis'
+
+components:
+  schemas:
+    OParlListe:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              format: uri
+        pagination:
+          type: object
+          properties:
+            totalElements:
+              type: integer
+            elementsPerPage:
+              type: integer
+
+    Sitzung:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uri
+        type:
+          type: string
+          example: "https://schema.oparl.org/1.1/Meeting"
+        name:
+          type: string
+          example: "Stadtratssitzung März 2025"
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            description:
+              type: string
+        agendaItem:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    Gremium:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Stadtrat"
+        typ:
+          type: string
+          enum: [Rat, Ausschuss, Fraktion, Sonstiges]
+        mitgliederzahl:
+          type: integer
+
+    Suchergebnis:
+      type: object
+      properties:
+        typ:
+          type: string
+        id:
+          type: string
+          format: uuid
+        titel:
+          type: string
+        auszug:
+          type: string
+        relevanz:
+          type: number
+          format: float
+        datum:
+          type: string
+          format: date
