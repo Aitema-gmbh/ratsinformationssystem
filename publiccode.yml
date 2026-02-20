@@ -1,28 +1,64 @@
-publiccodeYmlVersion: "0.4"
+publiccodeYmlVersion: 0.4
 
-name: aitema Ratsinformationssystem
-applicationSuite: aitema GovTech Suite
-url: "https://github.com/Aitema-gmbh/ratsinformationssystem"
-landingURL: "https://aitema.de/loesungen/ratsinformationssystem"
-
-createdAt: "2023-01-01"
-releaseDate: "2024-01-01"
-logo: "https://aitema.de/logo.svg"
-
-softwareVersion: "1.0.0"
-developmentStatus: stable
-softwareType: standalone/web
+name: aitema|Rats RIS
+url: https://github.com/Aitema-gmbh/ratsinformationssystem
+softwareVersion: 1.0.0
+releaseDate: 2025-01-01
 
 platforms:
   - web
-  - linux
 
 categories:
-  - document-management
   - government
+  - document-management
   - collaboration
 
-roadmap: "https://github.com/Aitema-gmbh/ratsinformationssystem/issues"
+developmentStatus: stable
+
+softwareType: standalone/web
+
+description:
+  de:
+    localisedName: aitema|Rats RIS – Ratsinformationssystem
+    genericName: Ratsinformationssystem
+    shortDescription: >
+      Open-Source Ratsinformationssystem für Kommunen und Stadtparlamente.
+      Verwaltet Sitzungen, Vorlagen, Beschlüsse und Gremien nach OParl-Standard.
+    longDescription: >
+      aitema|Rats RIS ist ein modernes, AGPL-lizenziertes Ratsinformationssystem für
+      Kommunen, Kreise und öffentliche Körperschaften. Es implementiert den OParl-Standard
+      für maschinenlesbare Ratsdaten und ermöglicht vollständige Transparenz demokratischer
+      Entscheidungsprozesse.
+      
+      Das System bietet Verwaltung von Gremien, Ausschüssen und politischen Gruppen,
+      vollständiges Sitzungsmanagement mit Tagesordnungen und Protokollen, Dokumentenverwaltung
+      mit Volltextsuche, öffentliche Suche nach Beschlüssen und Vorlagen sowie eine
+      OParl-konforme API für Drittsysteme.
+      
+      Die Architektur basiert auf Next.js (Frontend) und Supabase/PostgreSQL (Backend).
+    features:
+      - OParl-konforme API für maximale Interoperabilität
+      - Vollständige Sitzungs- und Tagesordnungsverwaltung
+      - Öffentliche Volltextsuche in allen Dokumenten
+      - Gremien- und Ausschussverwaltung
+      - Bürgertransparenz durch offene Datenschnittstelle
+      - Docker-basierter Self-hosted-Betrieb
+      - DSGVO-konform
+  en:
+    localisedName: aitema|Rats RIS – Council Information System
+    genericName: Council Information System
+    shortDescription: >
+      Open-source council information system for municipalities, implementing the German
+      OParl standard for machine-readable political data.
+    longDescription: >
+      aitema|Rats RIS provides transparent access to council decisions, meetings, and documents.
+      Built on Next.js with Supabase/PostgreSQL backend, fully self-hostable.
+    features:
+      - OParl-compliant API
+      - Full-text search across all documents
+      - Committee and session management
+      - Public transparency portal
+      - Docker-based installation
 
 legal:
   license: AGPL-3.0-only
@@ -30,7 +66,7 @@ legal:
   repoOwner: aitema GmbH
 
 maintenance:
-  type: internal
+  type: commercial
   contacts:
     - name: aitema GmbH
       email: kontakt@aitema.de
@@ -40,66 +76,12 @@ localisation:
   localisationReady: true
   availableLanguages:
     - de
-
-description:
-  de:
-    localisedName: aitema Rats-Informationssystem
-    genericName: Ratsinformationssystem
-    shortDescription: >-
-      Open-Source-Ratsinformationssystem fuer Kommunen. OParl-konform,
-      modernes Next.js-Frontend, vollstaendig selbst-hostbar.
-    longDescription: >-
-      Das aitema Rats-Informationssystem (RIS) ist eine moderne,
-      quelloffene Alternative zu proprietaeren Ratsinformationssystemen.
-      Es implementiert den offenen OParl-Standard fuer parlamentarische
-      Daten und bietet Buergern, Ratsmitgliedern und Verwaltungsmitarbeitern
-      einfachen Zugang zu Sitzungen, Vorlagen, Protokollen und Personen.
-      Entwickelt mit Next.js fuer maximale Performance und einfache
-      Wartung durch kommunale IT-Teams.
-    features:
-      - OParl-konform (offener Standard fuer parlamentarische Daten)
-      - Volltextsuche ueber alle Dokumente und Sitzungen
-      - Buerger-Frontend mit Tagesordnungen, Vorlagen und Protokollen
-      - Ratsmitglieder- und Gremienverzeichnis
-      - Responsive Design fuer mobile Nutzung
-      - DSGVO-konform und selbst-hostbar
-      - Keine Lizenzkosten
-    screenshots:
-      - "https://aitema.de/screenshots/ris-suche.png"
-
-  en:
-    localisedName: aitema Council Information System
-    genericName: Council Information System (RIS)
-    shortDescription: >-
-      Open-source council information system for German municipalities.
-      OParl-compliant, modern Next.js frontend, self-hostable.
-    longDescription: >-
-      The aitema Council Information System is a modern, open-source
-      alternative to proprietary systems. Implements the open OParl standard
-      for parliamentary data, providing easy access to meetings, papers,
-      minutes, and council members.
-    features:
-      - OParl-compliant open standard
-      - Full-text search
-      - Citizen-facing frontend
-      - GDPR-compliant and self-hostable
-
-intendedAudience:
-  countries:
-    - de
-    - at
-    - ch
-  scope:
-    - government
-    - local-authorities
+    - en
 
 dependsOn:
   open:
     - name: Next.js
-      versionMin: "14"
-    - name: Node.js
-      versionMin: "20"
+      versionMin: 14
     - name: PostgreSQL
-      versionMin: "15"
+      versionMin: 14
     - name: Docker
-      versionMin: "24"
