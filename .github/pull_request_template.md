@@ -1,39 +1,36 @@
 ## Beschreibung
 
-<!-- Beschreibe die Aenderungen in diesem PR kurz und praegnant. -->
+<!-- Beschreibe die Änderungen in diesem Pull Request -->
 
-## Art der Aenderung
+## Art der Änderung
 
-- [ ] Bugfix (nicht-brechende Aenderung, behebt ein Problem)
-- [ ] Neues Feature (nicht-brechende Aenderung, fuegt Funktionalitaet hinzu)
-- [ ] Brechende Aenderung (Fix oder Feature, das bestehende Funktionalitaet aendern wuerde)
-- [ ] Refactoring (keine funktionale Aenderung)
-- [ ] Dokumentation
-- [ ] CI/CD / Infrastruktur
-
-## Verwandtes Issue
-
-Closes #<!-- Issue-Nummer -->
-
-## Testplan
-
-<!-- Beschreibe, wie diese Aenderungen getestet wurden. -->
-
-- [ ] Unit Tests hinzugefuegt / aktualisiert
-- [ ] Integrationstests hinzugefuegt / aktualisiert
-- [ ] Manuell getestet (Beschreibung: )
-
-## Screenshots (falls relevant)
-
-<!-- Fuer UI-Aenderungen: Vorher / Nachher Screenshots -->
+- [ ] 🐛 Bug-Fix (nicht brechende Änderung, behebt ein Problem)
+- [ ] ✨ Neue Funktion (nicht brechende Änderung, fügt Funktionalität hinzu)
+- [ ] 💥 Brechende Änderung (fix oder feature, das bestehende Funktionalität ändert)
+- [ ] 📚 Dokumentation
+- [ ] 🎨 UI/UX Verbesserung
+- [ ] ⚡ Performance-Verbesserung
+- [ ] 🔒 Sicherheits-Fix
+- [ ] 🧪 Tests
 
 ## Checkliste
 
-- [ ] Code folgt den Coding-Guidelines des Projekts
-- [ ] Selbst-Review des Codes durchgefuehrt
-- [ ] Code ist kommentiert (besonders komplexe Stellen)
-- [ ] Dokumentation wurde entsprechend aktualisiert
-- [ ] Keine neuen Warnungen durch Aenderungen eingefuehrt
-- [ ] Tests wurden hinzugefuegt, die den Fix/Feature abdecken
+- [ ] Mein Code folgt dem Code-Style dieses Projekts
+- [ ] Ich habe eine Self-Review meines Codes durchgeführt
+- [ ] Ich habe meinen Code kommentiert, besonders in schwer verständlichen Bereichen
+- [ ] Ich habe entsprechende Änderungen an der Dokumentation vorgenommen
+- [ ] Meine Änderungen generieren keine neuen Warnungen
+- [ ] Ich habe Tests für meine Änderungen hinzugefügt
 - [ ] Alle neuen und bestehenden Tests sind erfolgreich
-- [ ] Abhaengige Aenderungen wurden gemergt und deployed
+
+## Screenshots (wenn relevant)
+
+<!-- Füge Screenshots für UI-Änderungen hinzu -->
+
+## Verwandte Issues
+
+<!-- Closes #123, Fixes #456 -->
+
+## Weitere Hinweise
+
+<!-- Weitere Informationen für den Reviewer -->
