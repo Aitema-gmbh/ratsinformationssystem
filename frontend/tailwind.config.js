@@ -1,12 +1,22 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
+        'aitema-navy':   '#0f172a',
+        'aitema-blue':   '#1e3a5f',
+        'aitema-accent': '#3b82f6',
+        'aitema-accent-hover': '#2563eb',
+        'aitema-emerald': '#059669',
+        'aitema-amber':  '#d97706',
+        'aitema-red':    '#dc2626',
+        'aitema-muted':  '#64748b',
         aitema: {
           navy: '#0f172a',
           blue: '#1e3a5f',
@@ -34,17 +44,25 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       boxShadow: {
+        'sm':  '0 1px 2px rgba(0,0,0,0.05)',
+        'md':  '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
+        'lg':  '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
+        'xl':  '0 20px 25px -5px rgba(0,0,0,0.1)',
+        'card': '0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)',
+        'card-hover': '0 4px 12px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05)',
         'aitema-sm': '0 1px 2px rgba(0,0,0,0.05)',
         'aitema-md': '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)',
         'aitema-lg': '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)',
         'aitema-xl': '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
       },
       borderRadius: {
-        'aitema-card': '0.5rem',
-        'aitema-btn': '0.375rem',
+        'card': '0.75rem',
+        'btn':  '0.5rem',
+        'aitema-card': '0.75rem',
+        'aitema-btn': '0.5rem',
         'aitema-modal': '1rem',
       },
       backgroundImage: {
@@ -53,7 +71,10 @@ module.exports = {
       },
       animation: {
         'fade-in': 'fadeIn 0.2s ease-out',
+        'fade-in-up': 'fadeInUp 400ms ease forwards',
         'slide-up': 'slideUp 0.3s ease-out',
+        'shimmer': 'shimmer 1.5s infinite',
+        'pulse-ring': 'pulseRing 2s ease infinite',
       },
       keyframes: {
         fadeIn: {
@@ -63,6 +84,19 @@ module.exports = {
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeInUp: {
+          from: { opacity: '0', transform: 'translateY(20px)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
+        shimmer: {
+          '0%':   { backgroundPosition: '-200% center' },
+          '100%': { backgroundPosition: '200% center' },
+        },
+        pulseRing: {
+          '0%':   { boxShadow: '0 0 0 0 rgba(59,130,246,0.4)' },
+          '70%':  { boxShadow: '0 0 0 8px rgba(59,130,246,0)' },
+          '100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0)' },
         },
       },
     },

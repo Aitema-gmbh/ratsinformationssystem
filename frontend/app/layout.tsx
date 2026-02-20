@@ -26,6 +26,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body>
         <a href="#main-content" className="skip-link">
@@ -34,13 +38,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <header className="site-header" role="banner">
           <nav className="main-nav" id="main-navigation" aria-label="Hauptnavigation">
+
             {/* Brand */}
             <div className="nav-brand">
               <a href="/" aria-label="aitema|Rats - Startseite">
                 <div className="nav-brand-logo" aria-hidden="true">aR</div>
                 <div className="nav-brand-text">
-                  <span className="nav-brand-name">aitema|Rats</span>
-                  <span className="nav-brand-tagline">Ratsinformationssystem</span>
+                  <span className="nav-brand-name">
+                    aitema|<span className="accent">Rats</span>
+                  </span>
+                  <span className="nav-brand-tagline">
+                    Ratsinformationssystem
+                    <span className="nav-oparl-badge">OParl 1.1</span>
+                  </span>
                 </div>
               </a>
             </div>

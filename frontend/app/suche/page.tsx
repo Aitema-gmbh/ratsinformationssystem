@@ -587,11 +587,11 @@ function SuchePageInner() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.375rem' }}>
             <div style={{
               width: '40px', height: '40px',
-              background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
               borderRadius: '10px',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
@@ -636,7 +636,7 @@ function SuchePageInner() {
                     (e.target as HTMLInputElement).style.borderColor = '#e2e8f0';
                     (e.target as HTMLInputElement).style.boxShadow = 'none';
                   }}
-                  placeholder="Vorlagen, Sitzungen, Personen durchsuchen..."
+                  placeholder="Beschluesse, Sitzungen, Vorlagen suchen..."
                   autoComplete="off"
                   aria-autocomplete="list"
                   aria-controls="autocomplete-list"
@@ -645,7 +645,7 @@ function SuchePageInner() {
                     width: '100%',
                     padding: '0.875rem 1rem 0.875rem 3rem',
                     border: '2px solid #e2e8f0',
-                    borderRadius: '0.5rem',
+                    borderRadius: '0.75rem',
                     fontSize: '1rem',
                     minHeight: '52px',
                     boxSizing: 'border-box',
@@ -670,7 +670,7 @@ function SuchePageInner() {
                       left: 0, right: 0,
                       background: '#fff',
                       border: '1px solid #e2e8f0',
-                      borderRadius: '0.5rem',
+                      borderRadius: '0.75rem',
                       boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                       zIndex: 30,
                       maxHeight: '320px',
@@ -737,7 +737,7 @@ function SuchePageInner() {
                   color: hasFilters ? '#fff' : '#475569',
                   border: '2px solid',
                   borderColor: hasFilters ? '#1e3a5f' : '#e2e8f0',
-                  borderRadius: '0.5rem',
+                  borderRadius: '0.75rem',
                   cursor: 'pointer',
                   minHeight: '52px',
                   fontSize: '0.875rem',
@@ -764,10 +764,10 @@ function SuchePageInner() {
                 disabled={inputValue.trim().length < 2 || loading}
                 style={{
                   padding: '0.875rem 2rem',
-                  background: inputValue.trim().length < 2 ? '#94a3b8' : '#1e3a5f',
+                  background: inputValue.trim().length < 2 ? '#94a3b8' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: '#fff',
                   border: 'none',
-                  borderRadius: '0.5rem',
+                  borderRadius: '0.75rem',
                   fontSize: '0.9375rem',
                   fontWeight: 600,
                   cursor: inputValue.trim().length < 2 ? 'not-allowed' : 'pointer',
@@ -812,7 +812,7 @@ function SuchePageInner() {
               flexShrink: 0,
               background: '#fff',
               border: '1px solid #e2e8f0',
-              borderRadius: '0.625rem',
+              borderRadius: '0.75rem',
               padding: '1.25rem',
               position: 'sticky',
               top: '80px',
@@ -846,7 +846,7 @@ function SuchePageInner() {
             {loading && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '1.25rem' }}>
+                  <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
                     <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.5rem' }}>
                       <div className="skeleton" style={{ height: '1.5rem', width: '60px', borderRadius: '4px' }} />
                       <div className="skeleton" style={{ height: '1.125rem', flex: 1, maxWidth: '60%' }} />
@@ -942,7 +942,7 @@ function SuchePageInner() {
                     <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                   </svg>
                 </div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
                   Volltextsuche
                 </h2>
                 <p style={{ fontSize: '0.9375rem', color: '#64748b', maxWidth: '380px', margin: '0 auto 1.5rem' }}>
@@ -950,7 +950,7 @@ function SuchePageInner() {
                 </p>
                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   {Object.entries(TYPE_LABELS).map(([key, label]) => (
-                    <span key={key} className={'badge ' + (TYPE_BADGE_CLASS[key] || 'badge-slate')} style={{ padding: '0.375rem 0.75rem' }}>
+                    <span key={key} className={'badge ' + (TYPE_BADGE_CLASS[key] || 'badge-slate')} style={{ padding: '0.5rem 1rem', borderRadius: '9999px', display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
                       <TypeIcon type={key} />
                       &nbsp;{label}
                     </span>
@@ -972,7 +972,7 @@ function SuchePageInner() {
                           padding: '1rem 1.25rem',
                           background: '#fff',
                           border: '1px solid #e2e8f0',
-                          borderRadius: '0.5rem',
+                          borderRadius: '0.75rem',
                           textDecoration: 'none',
                           color: 'inherit',
                           transition: 'border-color 0.2s, box-shadow 0.2s, transform 0.15s',
@@ -1253,9 +1253,9 @@ function paginationBtnStyle(active: boolean, disabled: boolean): React.CSSProper
     height: '36px',
     padding: '0 0.5rem',
     border: '1px solid',
-    borderColor: active ? '#1e3a5f' : '#e2e8f0',
+    borderColor: active ? '#2563eb' : '#e2e8f0',
     borderRadius: '0.375rem',
-    background: active ? '#1e3a5f' : disabled ? '#f8fafc' : '#fff',
+    background: active ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : disabled ? '#f8fafc' : '#fff',
     color: active ? '#fff' : disabled ? '#cbd5e1' : '#374151',
     fontWeight: active ? 700 : 400,
     cursor: disabled ? 'not-allowed' : 'pointer',
