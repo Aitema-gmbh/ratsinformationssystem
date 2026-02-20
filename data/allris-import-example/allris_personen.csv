@@ -1,0 +1,16 @@
+person_id;anrede;titel;vorname;nachname;fraktion;funktion;email;telefon;status;adresse_strasse;adresse_plz;adresse_ort;geburtsjahr;bemerkung
+PER-001;Herr;;Klaus;Huber;CDU;Buergermeister;k.huber@musterstadt.de;08741/4200-100;Aktiv;Rathausplatz 1;84001;Musterstadt;1968;Erster Buergermeister seit 2017
+PER-002;Frau;;Sabine;Maier;CDU;Zweite Buergermeisterin;s.maier@musterstadt.de;08741/4200-101;Aktiv;Rathausplatz 1;84001;Musterstadt;1972;
+PER-003;Herr;;Thomas;Mueller;CDU;Stadtrat;t.mueller@musterstadt.de;08741/4200-110;Aktiv;Birkenweg 12;84001;Musterstadt;1975;Vorsitzender Bau- und Planungsausschuss
+PER-004;Frau;;Monika;Fischer;CDU;Stadtraetin;m.fischer@musterstadt.de;08741/4200-111;Aktiv;Lindenstrasse 5;84001;Musterstadt;1970;
+PER-005;Herr;;Peter;Wagner;SPD;Stadtrat;p.wagner@musterstadt.de;08741/4200-120;Aktiv;Hauptstrasse 23;84001;Musterstadt;1965;Fraktionsvorsitzender SPD
+PER-006;Frau;;Petra;Becker;SPD;Stadtraetin;p.becker@musterstadt.de;08741/4200-121;Aktiv;Am Stadtpark 8;84001;Musterstadt;1978;
+PER-007;Herr;;Frank;Hoffmann;SPD;Stadtrat;f.hoffmann@musterstadt.de;08741/4200-122;Aktiv;Bahnhofstrasse 17;84001;Musterstadt;1980;Vorsitzender Sozialausschuss
+PER-008;Frau;;Katrin;Schroeder;GRUENE;Stadtraetin;k.schroeder@musterstadt.de;08741/4200-130;Aktiv;Gruenerweg 3;84002;Musterstadt-Nord;1983;Fraktionsvorsitzende Gruene
+PER-009;Herr;;Markus;Neumann;GRUENE;Stadtrat;m.neumann@musterstadt.de;08741/4200-131;Aktiv;Am Muehlenbach 4;84001;Musterstadt;1979;
+PER-010;Frau;;Martina;Krause;FDP;Stadtraetin;m.krause@musterstadt.de;08741/4200-140;Aktiv;Sonnenhang 11;84001;Musterstadt;1974;Fraktionsvorsitzende FDP
+PER-011;Herr;;Schmidt;Rainer;FDP;Stadtrat;r.schmidt@musterstadt.de;08741/4200-141;Aktiv;Industriestrasse 45;84001;Musterstadt;1971;
+PER-012;Herr;;Gerhard;Winkler;;Stadtkaemmerer;g.winkler@musterstadt.de;08741/4200-200;Aktiv;Rathausplatz 1;84001;Musterstadt;1962;Beamter
+PER-013;Frau;;Renate;Vogel;;Stadtbaumeisterin;r.vogel@musterstadt.de;08741/4200-210;Aktiv;Rathausplatz 1;84001;Musterstadt;1967;Beamtin
+PER-014;Herr;;Hans-Peter;Frank;;Stadtjurist;h.frank@musterstadt.de;08741/4200-220;Aktiv;Rathausplatz 1;84001;Musterstadt;1969;Beamter
+PER-015;Frau;;Brigitte;Weber;;Leiterin Sozialamt;b.weber@musterstadt.de;08741/4200-230;Aktiv;Rathausplatz 1;84001;Musterstadt;1973;Angestellte
