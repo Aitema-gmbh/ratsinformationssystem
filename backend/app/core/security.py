@@ -201,7 +201,7 @@ async def decode_token(token: str) -> TokenPayload:
         header = jwt.get_unverified_header(token)
         kid = header.get("kid")
         
-        if kid and settings.environment \!= "development":
+        if kid and settings.environment != "development":
             key = await jwks.get_signing_key(kid)
             payload = jwt.decode(
                 token,

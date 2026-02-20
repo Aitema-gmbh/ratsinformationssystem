@@ -1,0 +1,125 @@
+version: "3.9"
+
+x-common: &common
+  restart: always
+  logging:
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "5"
+
+services:
+  postgres:
+    <<: *common
+    image: postgres:16-alpine
+    container_name: ris-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - ris_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ris-internal
+
+  redis:
+    <<: *common
+    image: redis:7-alpine
+    container_name: ris-redis
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    volumes:
+      - ris_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ris-internal
+
+  backend:
+    <<: *common
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: aitema-ris-backend:latest
+    container_name: ris-backend
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - CORS_ORIGINS=${CORS_ORIGINS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.ris-api.rule=Host(`ris.aitema.de`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.ris-api.entrypoints=websecure"
+      - "traefik.http.routers.ris-api.tls=true"
+      - "traefik.http.routers.ris-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.ris-api.loadbalancer.server.port=8000"
+    networks:
+      - ris-internal
+      - traefik-network
+
+  frontend:
+    <<: *common
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: aitema-ris-frontend:latest
+    container_name: ris-frontend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/suche || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    environment:
+      - NEXT_PUBLIC_API_URL=${PUBLIC_API_URL}
+      - NEXT_TELEMETRY_DISABLED=1
+    depends_on:
+      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.ris.rule=Host(`ris.aitema.de`)"
+      - "traefik.http.routers.ris.entrypoints=websecure"
+      - "traefik.http.routers.ris.tls=true"
+      - "traefik.http.routers.ris.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.ris.middlewares=ris-root-redirect@file"
+      - "traefik.http.services.ris.loadbalancer.server.port=3000"
+    networks:
+      - ris-internal
+      - traefik-network
+
+volumes:
+  ris_postgres_data:
+    name: ris-postgres-data
+  ris_redis_data:
+    name: ris-redis-data
+
+networks:
+  ris-internal:
+    name: ris-internal
+    driver: bridge
+    internal: true
+  traefik-network:
+    external: true
