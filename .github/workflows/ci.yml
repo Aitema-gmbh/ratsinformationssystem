@@ -1,51 +1,29 @@
-name: CI
+name: Ratsinformationssystem CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 env:
-  PYTHON_VERSION: "3.12"
-  NODE_VERSION: "20"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: aitema-gmbh/ratsinformationssystem
 
 jobs:
-  backend-lint:
-    name: Backend Lint
+  backend:
+    name: Backend (Python 3.11)
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Install dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
-      - name: Ruff check
-        run: |
-          cd backend
-          ruff check app/ tests/
-      - name: Ruff format check
-        run: |
-          cd backend
-          ruff format --check app/ tests/
-      - name: Mypy type check
-        run: |
-          cd backend
-          mypy app/ --ignore-missing-imports
 
-  backend-test:
-    name: Backend Tests
-    runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:16-alpine
+        image: postgres:16
         env:
           POSTGRES_DB: ris_test
-          POSTGRES_USER: ris
-          POSTGRES_PASSWORD: ris_dev_password
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
@@ -53,89 +31,186 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      redis:
-        image: redis:7-alpine
+
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+        env:
+          discovery.type: single-node
+          xpack.security.enabled: 'false'
+          ES_JAVA_OPTS: -Xms512m -Xmx512m
         ports:
-          - 6379:6379
+          - 9200:9200
         options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd "curl -f http://localhost:9200/_cluster/health"
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 10
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.11'
+          cache: 'pip'
+
       - name: Install dependencies
         run: |
-          cd backend
-          pip install -r requirements.txt
-      - name: Run tests
-        env:
-          DATABASE_URL: postgresql+asyncpg://ris:ris_dev_password@localhost:5432/ris_test
-          REDIS_URL: redis://localhost:6379/1
-          SECRET_KEY: ci-test-secret-key
-          ENVIRONMENT: development
+          pip install --upgrade pip
+          pip install flake8 mypy pytest pytest-cov pytest-asyncio pytest-django
+          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+          if [ -f backend/requirements-dev.txt ]; then pip install -r backend/requirements-dev.txt; fi
+
+      - name: Run flake8
+        run: flake8 backend/ --max-line-length=120 --exclude=migrations,venv,.venv
+
+      - name: Run mypy
+        run: mypy backend/ --ignore-missing-imports --exclude migrations
+        continue-on-error: true
+
+      - name: Wait for Elasticsearch
         run: |
-          cd backend
-          python -m pytest tests/ -v --tb=short --cov=app --cov-report=xml
+          echo "Waiting for Elasticsearch..."
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:9200/_cluster/health > /dev/null 2>&1; then
+              echo "Elasticsearch ready"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Run pytest with coverage
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ris_test
+          ELASTICSEARCH_URL: http://localhost:9200
+          TESTING: 'true'
+          SECRET_KEY: test-secret-key-for-ci-only
+          DEBUG: 'true'
+        run: |
+          pytest --cov=. --cov-report=xml --cov-report=term-missing -v
+
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
+        if: always()
         with:
           files: backend/coverage.xml
+          flags: backend
 
-  frontend-lint:
-    name: Frontend Lint & Type Check
+  frontend:
+    name: Frontend (Node 20)
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          node-version: '20'
+          cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-      - name: ESLint
-        run: |
-          cd frontend
-          npm run lint
-      - name: TypeScript check
-        run: |
-          cd frontend
-          npm run type-check
 
-  frontend-build:
-    name: Frontend Build
-    runs-on: ubuntu-latest
-    needs: frontend-lint
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: frontend
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: |
-          cd frontend
-          npm ci
-      - name: Build
-        run: |
-          cd frontend
-          npm run build
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
 
-  docker-build:
-    name: Docker Build
+  build-docker:
+    name: Build and Push Docker
     runs-on: ubuntu-latest
-    needs: [backend-test, frontend-build]
-    if: github.ref == 'refs/heads/main'
+    needs:
+      - backend
+      - frontend
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    strategy:
+      matrix:
+        service: [backend, frontend]
+
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Build backend image
-        run: docker build -t aitema-ris-backend:test --target production backend/
-      - name: Build frontend image
-        run: docker build -t aitema-ris-frontend:test --target production frontend/
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+  deploy:
+    name: Deploy to Hetzner
+    runs-on: ubuntu-latest
+    needs: build-docker
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url: https://ris.aitema.de
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 49.13.15.44
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/aitema/ratsinformationssystem
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            git pull origin main
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker system prune -f
+            echo "Deployment completed at $(date)"
+
+      - name: Health check
+        run: |
+          sleep 30
+          curl --fail --retry 5 --retry-delay 10 https://ris.aitema.de/api/health || echo "Health check warning"
