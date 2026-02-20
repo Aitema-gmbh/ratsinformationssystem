@@ -12,6 +12,7 @@ import os
 
 from app.database import init_db
 from app.routers import oparl, export
+from app.routers.search import router as search_router
 
 
 @asynccontextmanager
@@ -53,6 +54,7 @@ async def add_process_time(request: Request, call_next):
 # Include routers
 app.include_router(oparl.router)
 app.include_router(export.router)
+app.include_router(search_router)
 
 
 # Health check
@@ -68,6 +70,7 @@ def api_info():
         "name": "aitema|Rats API",
         "version": "0.1.0",
         "oparl": "/oparl/v1",
+        "search": "/api/v1/search",
         "docs": "/api/docs",
         "health": "/health",
     }
