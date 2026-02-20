@@ -1,0 +1,45 @@
+# aitema|Rats RIS – Schnellstart (Produktion)
+# Starten: docker compose up -d
+# Öffnen:  http://localhost:3001
+# Tipp:    Kopiere .env.example nach .env und passe die Werte an!
+
+services:
+  app:
+    image: ghcr.io/aitema-gmbh/ratsinformationssystem:latest
+    # Alternativ: build: .
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://aitema:${DB_PASSWORD:-geheimes_passwort}@db:5432/ris
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-bitte_aendern_in_produktion}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3001}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - ris_net
+
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=ris
+      - POSTGRES_USER=aitema
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-geheimes_passwort}
+    volumes:
+      - ris_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aitema -d ris"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ris_net
+
+volumes:
+  ris_db_data:
+
+networks:
+  ris_net:
