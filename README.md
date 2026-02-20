@@ -1,16 +1,11 @@
 # aitema|Rats RIS – Open-Source-Ratsinformationssystem
 
-![GitHub License](https://img.shields.io/github/license/Aitema-gmbh/ratsinformationssystem?style=flat-square&color=blue)
-![GitHub Stars](https://img.shields.io/github/stars/Aitema-gmbh/ratsinformationssystem?style=flat-square)
-![publiccode.yml](https://img.shields.io/badge/publiccode-0.4-brightgreen?style=flat-square)
-![OParl](https://img.shields.io/badge/OParl-1.1-orange?style=flat-square)
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white)
-
-
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![OParl konform](https://img.shields.io/badge/OParl-konform-green)](https://oparl.org)
-[![Made in Germany](https://img.shields.io/badge/Made_in-Germany-black)](https://aitema.de)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![GitHub Stars](https://img.shields.io/github/stars/Aitema-gmbh/ratsinformationssystem?style=social)](https://github.com/Aitema-gmbh/ratsinformationssystem/stargazers)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://github.com/Aitema-gmbh/ratsinformationssystem/pkgs/container/ratsinformationssystem)
+[![OParl 1.1](https://img.shields.io/badge/OParl-1.1-brightgreen)](https://oparl.org)
+[![opencode.de](https://img.shields.io/badge/opencode.de-Kompatibel-0069B4)](https://opencode.de)
+[![API Docs](https://img.shields.io/badge/API-Dokumentation-orange)](https://aitema.de/api-docs/ratsinformationssystem)
 
 Modernes, quelloffenes Ratsinformationssystem für Kommunen – OParl-konform, Next.js-Frontend, keine Lizenzkosten.
 
