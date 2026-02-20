@@ -1,25 +1,5 @@
-# CODEOWNERS - Automatische Review-Zuweisung
-# Syntax: <pattern> <owner> [<owner>...]
-
-# Global fallback - alle Aenderungen benoetigen Review
-* @Aitema-gmbh/dev-team
-
-# Backend
-/backend/ @Aitema-gmbh/backend-team
-/migrations/ @Aitema-gmbh/backend-team
-/alembic.ini @Aitema-gmbh/backend-team
-
-# Frontend
-/frontend/ @Aitema-gmbh/frontend-team
-
-# Infrastructure & CI/CD
-/docker-compose*.yml @Aitema-gmbh/devops
-/.github/ @Aitema-gmbh/devops
-/scripts/ @Aitema-gmbh/devops
-
-# Docs
-/docs/ @Aitema-gmbh/dev-team
-*.md @Aitema-gmbh/dev-team
-
-# Config
-/config/ @Aitema-gmbh/devops @Aitema-gmbh/backend-team
+# aitema|Rats CODEOWNERS
+# Alle Dateien: ris-maintainers
+* @Aitema-gmbh
+backend/ @Aitema-gmbh
+frontend/ @Aitema-gmbh
