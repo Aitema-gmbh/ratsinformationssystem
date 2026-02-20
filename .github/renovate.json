@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    "group:allNonMajor",
+    ":dependencyDashboard",
+    ":semanticCommits"
+  ],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "matchDepTypes": ["dependencies"],
+      "matchPackagePatterns": ["^next", "^react", "^@next"],
+      "groupName": "Next.js / React",
+      "groupSlug": "nextjs-react"
+    },
+    {
+      "matchPackagePatterns": ["^tailwindcss", "^@tailwindcss"],
+      "groupName": "Tailwind CSS",
+      "automerge": true
+    }
+  ],
+  "schedule": ["every weekend"],
+  "timezone": "Europe/Berlin",
+  "labels": ["dependencies", "renovate"],
+  "commitMessagePrefix": "chore(deps):",
+  "prHourlyLimit": 5
+}
