@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "title": "aitema Rats – Ratsinformationssystem",
+    "description": "Demokratietransparenz für Ihre Gemeinde. OParl 1.1 konform."
+  },
+  "nav": {
+    "search": "Suche",
+    "meetings": "Sitzungen",
+    "papers": "Vorlagen",
+    "persons": "Personen",
+    "organizations": "Gremien"
+  },
+  "search": {
+    "title": "Was suchen Sie?",
+    "placeholder": "Beschlüsse, Sitzungen, Vorlagen suchen...",
+    "button": "Suchen",
+    "results": "{count} Ergebnisse",
+    "no_results": "Keine Ergebnisse gefunden.",
+    "filters": "Filter",
+    "type": "Typ",
+    "date_from": "Von",
+    "date_to": "Bis"
+  },
+  "types": {
+    "meeting": "Sitzung",
+    "paper": "Vorlage",
+    "person": "Person",
+    "organization": "Gremium",
+    "decision": "Beschluss"
+  },
+  "meeting": {
+    "title": "Sitzungen",
+    "date": "Datum",
+    "location": "Ort",
+    "agenda": "Tagesordnung",
+    "documents": "Dokumente",
+    "minutes": "Protokoll"
+  },
+  "footer": {
+    "powered": "Bereitgestellt von",
+    "oparl": "OParl 1.1 konform",
+    "privacy": "Datenschutz",
+    "legal": "Impressum"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "title": "aitema Rats – Council Information System",
+    "description": "Democracy transparency for your municipality. OParl 1.1 compliant."
+  },
+  "nav": {
+    "search": "Search",
+    "meetings": "Meetings",
+    "papers": "Papers",
+    "persons": "Persons",
+    "organizations": "Committees"
+  },
+  "search": {
+    "title": "What are you looking for?",
+    "placeholder": "Search decisions, meetings, papers...",
+    "button": "Search",
+    "results": "{count} results",
+    "no_results": "No results found.",
+    "filters": "Filters",
+    "type": "Type",
+    "date_from": "From",
+    "date_to": "To"
+  },
+  "types": {
+    "meeting": "Meeting",
+    "paper": "Paper",
+    "person": "Person",
+    "organization": "Committee",
+    "decision": "Decision"
+  },
+  "meeting": {
+    "title": "Meetings",
+    "date": "Date",
+    "location": "Location",
+    "agenda": "Agenda",
+    "documents": "Documents",
+    "minutes": "Minutes"
+  },
+  "footer": {
+    "powered": "Powered by",
+    "oparl": "OParl 1.1 compliant",
+    "privacy": "Privacy Policy",
+    "legal": "Legal Notice"
+  }
+}
