@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 // ============================================================
 // Typen
@@ -67,7 +68,14 @@ const TYPE_COLORS: Record<string, string> = {
   paper: '#3b82f6',
   meeting: '#8b5cf6',
   person: '#f59e0b',
-  organization: '#16a34a',
+  organization: '#059669',
+};
+
+const TYPE_BADGE_CLASS: Record<string, string> = {
+  paper: 'badge-blue',
+  meeting: 'badge-purple',
+  person: 'badge-amber',
+  organization: 'badge-green',
 };
 
 const MEETING_STATE_LABELS: Record<string, string> = {
@@ -117,11 +125,47 @@ function HighlightedText({ html }: { html: string }) {
   );
 }
 
+// Type-Icon component
+function TypeIcon({ type }: { type: string }) {
+  switch (type) {
+    case 'paper':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+      );
+    case 'meeting':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      );
+    case 'person':
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      );
+    default:
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+      );
+  }
+}
+
 // ============================================================
 // Haupt-Komponente
 // ============================================================
 
-export default function SuchePage() {
+function SuchePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -195,7 +239,7 @@ export default function SuchePage() {
 
     setLoading(true);
     try {
-      const params = new URLSearchParams({ q: q.trim(), page: String(pg), size: '20' });
+      const params = new URLSearchParams({ q: q.trim(), page: String(pg), per_page: '10' });
       if (type)    params.set('type', type);
       if (gremium) params.set('gremium', gremium);
       if (year)    params.set('year', year);
@@ -213,7 +257,7 @@ export default function SuchePage() {
     }
   }, []);
 
-  // Wenn URL-Parameter sich aendern → Suche
+  // Wenn URL-Parameter sich aendern: Suche
   useEffect(() => {
     if (query.trim().length >= 2) {
       executeSearch(query, typeFilter, gremiumFilter, yearFilter, statusFilter, page);
@@ -250,7 +294,6 @@ export default function SuchePage() {
     autocompleteTimer.current = setTimeout(() => fetchAutocomplete(val), 300);
   };
 
-  // Keyboard-Navigation fuer Autocomplete
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions) {
       if (e.key === 'Enter') submitSearch();
@@ -333,10 +376,6 @@ export default function SuchePage() {
 
   const hasFilters = !!(typeFilter || gremiumFilter || yearFilter || statusFilter);
 
-  // ----------------------------------------
-  // Gremien aus Facetten extrahieren
-  // ----------------------------------------
-
   const gremienOptions: string[] = results?.facets?.by_organization?.map(f => f.key) || [];
 
   // ----------------------------------------
@@ -347,46 +386,67 @@ export default function SuchePage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       {/* Typ */}
       <div>
-        <label style={labelStyle}>Typ</label>
-        <select
-          value={typeFilter}
-          onChange={e => applyFilter('type', e.target.value)}
-          style={selectStyle}
-          aria-label="Nach Typ filtern"
-        >
-          <option value="">Alle Typen</option>
-          {Object.entries(TYPE_LABELS).map(([val, label]) => (
-            <option key={val} value={val}>{label}</option>
-          ))}
-        </select>
-        {results?.facets?.by_type && (
-          <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+        <p style={filterLabelStyle}>Inhaltstyp</p>
+        {results?.facets?.by_type ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <button
+              onClick={() => applyFilter('type', '')}
+              style={{
+                ...facetBtnStyle,
+                background: !typeFilter ? '#f1f5f9' : 'transparent',
+                fontWeight: !typeFilter ? 600 : 400,
+                color: '#0f172a',
+              }}
+            >
+              <span>Alle Typen</span>
+              <span style={facetCountStyle}>{results.total}</span>
+            </button>
             {results.facets.by_type.map(f => (
               <button
                 key={f.key}
                 onClick={() => applyFilter('type', typeFilter === f.key ? '' : f.key)}
                 style={{
                   ...facetBtnStyle,
-                  background: typeFilter === f.key ? TYPE_COLORS[f.key] || '#1e3a5f' : 'transparent',
-                  color: typeFilter === f.key ? '#fff' : '#374151',
-                  borderColor: TYPE_COLORS[f.key] || '#d1d5db',
+                  background: typeFilter === f.key ? TYPE_COLORS[f.key] + '18' : 'transparent',
+                  borderColor: typeFilter === f.key ? TYPE_COLORS[f.key] : '#e2e8f0',
+                  color: typeFilter === f.key ? TYPE_COLORS[f.key] : '#374151',
+                  fontWeight: typeFilter === f.key ? 600 : 400,
                 }}
               >
-                <span>{TYPE_LABELS[f.key] || f.key}</span>
-                <span style={facetCountStyle}>{f.count}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: TYPE_COLORS[f.key] || '#64748b' }}>
+                    <TypeIcon type={f.key} />
+                  </span>
+                  {TYPE_LABELS[f.key] || f.key}
+                </span>
+                <span style={{ ...facetCountStyle, background: typeFilter === f.key ? TYPE_COLORS[f.key] + '20' : 'rgba(0,0,0,0.06)' }}>
+                  {f.count}
+                </span>
               </button>
             ))}
           </div>
+        ) : (
+          <select
+            value={typeFilter}
+            onChange={e => applyFilter('type', e.target.value)}
+            className="form-select"
+            aria-label="Nach Typ filtern"
+          >
+            <option value="">Alle Typen</option>
+            {Object.entries(TYPE_LABELS).map(([val, label]) => (
+              <option key={val} value={val}>{label}</option>
+            ))}
+          </select>
         )}
       </div>
 
       {/* Jahr */}
       <div>
-        <label style={labelStyle}>Jahr</label>
+        <p style={filterLabelStyle}>Jahr</p>
         <select
           value={yearFilter}
           onChange={e => applyFilter('year', e.target.value)}
-          style={selectStyle}
+          className="form-select"
           aria-label="Nach Jahr filtern"
         >
           <option value="">Alle Jahre</option>
@@ -404,11 +464,11 @@ export default function SuchePage() {
       {/* Gremium */}
       {gremienOptions.length > 0 && (
         <div>
-          <label style={labelStyle}>Gremium</label>
+          <p style={filterLabelStyle}>Gremium</p>
           <select
             value={gremiumFilter}
             onChange={e => applyFilter('gremium', e.target.value)}
-            style={selectStyle}
+            className="form-select"
             aria-label="Nach Gremium filtern"
           >
             <option value="">Alle Gremien</option>
@@ -422,8 +482,8 @@ export default function SuchePage() {
       {/* Status */}
       {results?.facets?.by_meeting_state && results.facets.by_meeting_state.length > 0 && (
         <div>
-          <label style={labelStyle}>Status</label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem' }}>
+          <p style={filterLabelStyle}>Sitzungsstatus</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
             {results.facets.by_meeting_state.map(f => (
               <button
                 key={f.key}
@@ -432,6 +492,8 @@ export default function SuchePage() {
                   ...facetBtnStyle,
                   background: statusFilter === f.key ? '#1e3a5f' : 'transparent',
                   color: statusFilter === f.key ? '#fff' : '#374151',
+                  borderColor: statusFilter === f.key ? '#1e3a5f' : '#e2e8f0',
+                  fontWeight: statusFilter === f.key ? 600 : 400,
                 }}
               >
                 <span>{MEETING_STATE_LABELS[f.key] || f.key}</span>
@@ -447,17 +509,24 @@ export default function SuchePage() {
         <button
           onClick={clearAllFilters}
           style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.375rem',
             padding: '0.5rem 1rem',
             background: '#fee2e2',
             color: '#b91c1c',
             border: '1px solid #fca5a5',
             borderRadius: '0.375rem',
             cursor: 'pointer',
-            fontSize: '0.875rem',
-            fontWeight: 500,
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            fontFamily: 'inherit',
+            transition: 'background 0.15s',
           }}
         >
-          Filter zuruecksetzen
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Alle Filter loeschen
         </button>
       )}
     </div>
@@ -473,11 +542,7 @@ export default function SuchePage() {
       {drawerOpen && (
         <div
           onClick={() => setDrawerOpen(false)}
-          style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(0,0,0,0.4)',
-            zIndex: 40,
-          }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 40 }}
           aria-hidden="true"
         />
       )}
@@ -490,22 +555,23 @@ export default function SuchePage() {
         style={{
           position: 'fixed',
           left: drawerOpen ? 0 : '-320px',
-          top: 0,
-          bottom: 0,
-          width: '300px',
-          background: '#fff',
-          zIndex: 50,
-          padding: '1.5rem',
-          overflowY: 'auto',
-          boxShadow: '4px 0 16px rgba(0,0,0,0.12)',
+          top: 0, bottom: 0, width: '300px',
+          background: '#fff', zIndex: 50,
+          padding: '1.5rem', overflowY: 'auto',
+          boxShadow: '4px 0 24px rgba(0,0,0,0.15)',
           transition: 'left 0.25s ease',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 700 }}>Filter</h2>
+          <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Filter</h2>
           <button
             onClick={() => setDrawerOpen(false)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem', lineHeight: 1 }}
+            style={{
+              background: '#f1f5f9', border: 'none', cursor: 'pointer',
+              width: '32px', height: '32px', borderRadius: '6px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#64748b', fontSize: '1.125rem', lineHeight: 1,
+            }}
             aria-label="Filter schliessen"
           >
             &times;
@@ -515,157 +581,221 @@ export default function SuchePage() {
       </div>
 
       {/* Hauptinhalt */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: '1.5rem' }}>
-          Volltextsuche
-        </h1>
+      <div>
+        {/* Page Header */}
+        <div className="page-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.375rem' }}>
+            <div style={{
+              width: '40px', height: '40px',
+              background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+              borderRadius: '10px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <h1 className="page-title" style={{ marginBottom: 0 }}>Volltextsuche</h1>
+          </div>
+          <p className="page-subtitle">Durchsuche alle Vorlagen, Sitzungen, Personen und Gremien</p>
+        </div>
 
         {/* Suchleiste */}
-        <div style={{ position: 'relative', marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '2rem' }}>
           <form
             role="search"
             aria-label="Ratsinformationssystem durchsuchen"
             onSubmit={e => { e.preventDefault(); submitSearch(); }}
-            style={{ display: 'flex', gap: '0.75rem' }}
           >
-            <label htmlFor="main-search" className="sr-only">Suchbegriff</label>
-            <div style={{ position: 'relative', flex: 1 }}>
-              <input
-                id="main-search"
-                ref={inputRef}
-                type="search"
-                value={inputValue}
-                onChange={e => handleInputChange(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                placeholder="Vorlagen, Sitzungen, Personen durchsuchen..."
-                autoComplete="off"
-                aria-autocomplete="list"
-                aria-controls="autocomplete-list"
-                aria-expanded={showSuggestions}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1rem',
-                  border: '2px solid #d1d5db',
-                  borderRadius: '0.375rem',
-                  fontSize: '1rem',
-                  minHeight: '48px',
-                  boxSizing: 'border-box',
-                  outline: 'none',
-                  transition: 'border-color 0.15s',
-                }}
-                onFocusCapture={e => (e.target.style.borderColor = '#1e3a5f')}
-                onBlurCapture={e => (e.target.style.borderColor = '#d1d5db')}
-              />
-
-              {/* Autocomplete-Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <div
-                  id="autocomplete-list"
-                  ref={suggestionsRef}
-                  role="listbox"
-                  aria-label="Suchvorschlaege"
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 4px)',
-                    left: 0,
-                    right: 0,
-                    background: '#fff',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.375rem',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                    zIndex: 30,
-                    maxHeight: '320px',
-                    overflowY: 'auto',
-                  }}
+            <div style={{ position: 'relative', display: 'flex', gap: '0.75rem' }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                {/* Search Icon inside input */}
+                <svg
+                  style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 1 }}
+                  width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
                 >
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={s.id || i}
-                      role="option"
-                      aria-selected={i === activeSuggestion}
-                      onClick={() => selectSuggestion(s)}
-                      onMouseEnter={() => setActiveSuggestion(i)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.75rem',
-                        width: '100%',
-                        padding: '0.625rem 1rem',
-                        background: i === activeSuggestion ? '#f0f4ff' : 'transparent',
-                        border: 'none',
-                        borderBottom: '1px solid #f3f4f6',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                      }}
-                    >
-                      <span style={{
-                        padding: '0.125rem 0.375rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.625rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        color: '#fff',
-                        background: TYPE_COLORS[s.type] || '#6b7280',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        {TYPE_LABELS[s.type] || s.type}
-                      </span>
-                      <span style={{ fontSize: '0.875rem', color: '#111827' }}>{s.name}</span>
-                      {s.reference && (
-                        <span style={{ fontSize: '0.75rem', color: '#9ca3af', marginLeft: 'auto' }}>{s.reference}</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+
+                <label htmlFor="main-search" className="sr-only">Suchbegriff</label>
+                <input
+                  id="main-search"
+                  ref={inputRef}
+                  type="search"
+                  value={inputValue}
+                  onChange={e => handleInputChange(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={e => {
+                    if (suggestions.length > 0) setShowSuggestions(true);
+                    (e.target as HTMLInputElement).style.borderColor = '#3b82f6';
+                    (e.target as HTMLInputElement).style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)';
+                  }}
+                  onBlur={e => {
+                    (e.target as HTMLInputElement).style.borderColor = '#e2e8f0';
+                    (e.target as HTMLInputElement).style.boxShadow = 'none';
+                  }}
+                  placeholder="Vorlagen, Sitzungen, Personen durchsuchen..."
+                  autoComplete="off"
+                  aria-autocomplete="list"
+                  aria-controls="autocomplete-list"
+                  aria-expanded={showSuggestions}
+                  style={{
+                    width: '100%',
+                    padding: '0.875rem 1rem 0.875rem 3rem',
+                    border: '2px solid #e2e8f0',
+                    borderRadius: '0.5rem',
+                    fontSize: '1rem',
+                    minHeight: '52px',
+                    boxSizing: 'border-box',
+                    outline: 'none',
+                    transition: 'border-color 0.15s, box-shadow 0.15s',
+                    fontFamily: 'inherit',
+                    color: '#0f172a',
+                    background: '#fff',
+                  }}
+                />
+
+                {/* Autocomplete-Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    id="autocomplete-list"
+                    ref={suggestionsRef}
+                    role="listbox"
+                    aria-label="Suchvorschlaege"
+                    style={{
+                      position: 'absolute',
+                      top: 'calc(100% + 6px)',
+                      left: 0, right: 0,
+                      background: '#fff',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '0.5rem',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                      zIndex: 30,
+                      maxHeight: '320px',
+                      overflowY: 'auto',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={s.id || i}
+                        role="option"
+                        aria-selected={i === activeSuggestion}
+                        onClick={() => selectSuggestion(s)}
+                        onMouseEnter={() => setActiveSuggestion(i)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          width: '100%',
+                          padding: '0.75rem 1rem',
+                          background: i === activeSuggestion ? '#f8fafc' : 'transparent',
+                          border: 'none',
+                          borderBottom: '1px solid #f1f5f9',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontFamily: 'inherit',
+                          transition: 'background 0.1s',
+                        }}
+                      >
+                        <span style={{ color: TYPE_COLORS[s.type] || '#64748b', flexShrink: 0 }}>
+                          <TypeIcon type={s.type} />
+                        </span>
+                        <span style={{
+                          padding: '0.125rem 0.5rem',
+                          borderRadius: '0.25rem',
+                          fontSize: '0.625rem',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em',
+                          color: '#fff',
+                          background: TYPE_COLORS[s.type] || '#64748b',
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {TYPE_LABELS[s.type] || s.type}
+                        </span>
+                        <span style={{ fontSize: '0.875rem', color: '#0f172a', flex: 1 }}>{s.name}</span>
+                        {s.reference && (
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', flexShrink: 0 }}>{s.reference}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Filter-Button */}
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(true)}
+                aria-label="Filter oeffnen"
+                style={{
+                  padding: '0.875rem 1.125rem',
+                  background: hasFilters ? '#1e3a5f' : '#f8fafc',
+                  color: hasFilters ? '#fff' : '#475569',
+                  border: '2px solid',
+                  borderColor: hasFilters ? '#1e3a5f' : '#e2e8f0',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  minHeight: '52px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  fontFamily: 'inherit',
+                  display: 'none',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s',
+                }}
+                className="mobile-filter-btn"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="4" y1="6" x2="20" y2="6"/>
+                  <line x1="8" y1="12" x2="16" y2="12"/>
+                  <line x1="11" y1="18" x2="13" y2="18"/>
+                </svg>
+                Filter {hasFilters && `(${[typeFilter, gremiumFilter, yearFilter, statusFilter].filter(Boolean).length})`}
+              </button>
+
+              <button
+                type="submit"
+                disabled={inputValue.trim().length < 2 || loading}
+                style={{
+                  padding: '0.875rem 2rem',
+                  background: inputValue.trim().length < 2 ? '#94a3b8' : '#1e3a5f',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  fontSize: '0.9375rem',
+                  fontWeight: 600,
+                  cursor: inputValue.trim().length < 2 ? 'not-allowed' : 'pointer',
+                  minHeight: '52px',
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'inherit',
+                  transition: 'background 0.15s',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {loading ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{
+                      width: '16px', height: '16px',
+                      border: '2px solid rgba(255,255,255,0.3)',
+                      borderTopColor: '#fff',
+                      borderRadius: '50%',
+                      animation: 'spin 0.7s linear infinite',
+                      display: 'inline-block',
+                    }} aria-hidden="true" />
+                    Suche...
+                  </span>
+                ) : 'Suchen'}
+              </button>
             </div>
-
-            {/* Mobile Filter-Button */}
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(true)}
-              aria-label="Filter oeffnen"
-              style={{
-                padding: '0.75rem 1rem',
-                background: hasFilters ? '#1e3a5f' : '#f9fafb',
-                color: hasFilters ? '#fff' : '#374151',
-                border: '2px solid',
-                borderColor: hasFilters ? '#1e3a5f' : '#d1d5db',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                minHeight: '48px',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                display: 'none',
-              }}
-              className="mobile-filter-btn"
-            >
-              Filter {hasFilters && `(${[typeFilter, gremiumFilter, yearFilter, statusFilter].filter(Boolean).length})`}
-            </button>
-
-            <button
-              type="submit"
-              disabled={inputValue.trim().length < 2 || loading}
-              style={{
-                padding: '0.75rem 2rem',
-                background: '#1e3a5f',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '0.375rem',
-                fontSize: '1rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                minHeight: '48px',
-                opacity: inputValue.trim().length < 2 ? 0.5 : 1,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {loading ? 'Suche...' : 'Suchen'}
-            </button>
           </form>
 
-          <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.375rem' }}>
+          <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.5rem' }}>
             Mindestens 2 Zeichen eingeben &bull; Autocomplete ab 3 Zeichen
           </p>
         </div>
@@ -676,24 +806,31 @@ export default function SuchePage() {
           {/* Filter-Sidebar (Desktop) */}
           <aside
             aria-label="Suchfilter"
-            style={{
-              width: '220px',
-              flexShrink: 0,
-              background: '#f9fafb',
-              border: '1px solid #e5e7eb',
-              borderRadius: '0.5rem',
-              padding: '1.25rem',
-            }}
             className="filter-sidebar"
+            style={{
+              width: '230px',
+              flexShrink: 0,
+              background: '#fff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '0.625rem',
+              padding: '1.25rem',
+              position: 'sticky',
+              top: '80px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#6b7280' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <h2 style={{ margin: 0, fontSize: '0.8125rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#64748b' }}>
                 Filter
               </h2>
               {hasFilters && (
                 <button
                   onClick={clearAllFilters}
-                  style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.75rem' }}
+                  style={{
+                    background: 'none', border: 'none', color: '#ef4444',
+                    cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600,
+                    padding: '0.125rem', fontFamily: 'inherit',
+                  }}
                 >
                   Alle loeschen
                 </button>
@@ -703,25 +840,32 @@ export default function SuchePage() {
           </aside>
 
           {/* Ergebnis-Bereich */}
-          <main id="search-results" style={{ flex: 1, minWidth: 0 }} aria-live="polite" aria-busy={loading}>
+          <div style={{ flex: 1, minWidth: 0 }} aria-live="polite" aria-busy={loading}>
 
-            {/* Loading State */}
+            {/* Loading Skeleton */}
             {loading && (
-              <div style={{ textAlign: 'center', padding: '3rem 0', color: '#6b7280' }}>
-                <div style={spinnerStyle} aria-hidden="true" />
-                <p style={{ marginTop: '1rem' }}>Suche laeuft...</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <div className="skeleton" style={{ height: '1.5rem', width: '60px', borderRadius: '4px' }} />
+                      <div className="skeleton" style={{ height: '1.125rem', flex: 1, maxWidth: '60%' }} />
+                    </div>
+                    <div className="skeleton" style={{ height: '0.875rem', width: '40%' }} />
+                  </div>
+                ))}
               </div>
             )}
 
             {/* Ergebnis-Header */}
             {!loading && results && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }} role="status">
-                  <strong>{results.total.toLocaleString('de-DE')}</strong> Ergebnis{results.total !== 1 ? 'se' : ''} fuer &bdquo;{results.query}&ldquo;
-                  {hasFilters && ' (gefiltert)'}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }} role="status">
+                  <strong style={{ color: '#0f172a' }}>{results.total.toLocaleString('de-DE')}</strong> Ergebnis{results.total !== 1 ? 'se' : ''} fuer &bdquo;{results.query}&ldquo;
+                  {hasFilters && <span style={{ color: '#3b82f6' }}> (gefiltert)</span>}
                 </p>
                 {results.total > 0 && (
-                  <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                     Seite {results.page} von {results.total_pages}
                   </span>
                 )}
@@ -748,19 +892,31 @@ export default function SuchePage() {
 
             {/* Empty State */}
             {!loading && results && results.total === 0 && (
-              <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#6b7280' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>?</div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>
+              <div style={{
+                textAlign: 'center', padding: '5rem 2rem',
+                background: '#fff', borderRadius: '0.75rem', border: '1px solid #e2e8f0',
+              }}>
+                <div style={{
+                  width: '64px', height: '64px', background: '#f1f5f9', borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem',
+                }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </div>
+                <h2 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '0.5rem', color: '#0f172a' }}>
                   Keine Ergebnisse
                 </h2>
-                <p style={{ maxWidth: '400px', margin: '0 auto' }}>
+                <p style={{ maxWidth: '400px', margin: '0 auto 1rem', color: '#64748b', fontSize: '0.9375rem' }}>
                   Fuer &bdquo;{results.query}&ldquo; wurden keine Dokumente gefunden.
                   Versuche andere Begriffe oder entferne Filter.
                 </p>
                 {hasFilters && (
                   <button
                     onClick={clearAllFilters}
-                    style={{ marginTop: '1rem', padding: '0.5rem 1.5rem', background: '#1e3a5f', color: '#fff', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}
+                    className="btn-primary"
+                    style={{ display: 'inline-flex' }}
                   >
                     Filter zuruecksetzen
                   </button>
@@ -770,18 +926,43 @@ export default function SuchePage() {
 
             {/* Noch keine Suche */}
             {!loading && !results && !query && (
-              <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#9ca3af' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>&#128269;</div>
-                <p style={{ fontSize: '1rem' }}>
-                  Gib einen Suchbegriff ein, um Vorlagen, Sitzungen und Personen zu durchsuchen.
+              <div style={{
+                textAlign: 'center', padding: '5rem 2rem',
+                background: '#fff', borderRadius: '0.75rem', border: '1px solid #e2e8f0',
+              }}>
+                <div style={{
+                  width: '80px', height: '80px',
+                  background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+                  borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 1.25rem',
+                }}>
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1e40af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                  Volltextsuche
+                </h2>
+                <p style={{ fontSize: '0.9375rem', color: '#64748b', maxWidth: '380px', margin: '0 auto 1.5rem' }}>
+                  Gib einen Suchbegriff ein, um Vorlagen, Sitzungen, Personen und Gremien zu durchsuchen.
                 </p>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {Object.entries(TYPE_LABELS).map(([key, label]) => (
+                    <span key={key} className={'badge ' + (TYPE_BADGE_CLASS[key] || 'badge-slate')} style={{ padding: '0.375rem 0.75rem' }}>
+                      <TypeIcon type={key} />
+                      &nbsp;{label}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
 
             {/* Ergebnis-Liste */}
             {!loading && results && results.data.length > 0 && (
               <>
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                   {results.data.map((item, i) => (
                     <li key={item.id || i}>
                       <Link
@@ -790,39 +971,50 @@ export default function SuchePage() {
                           display: 'block',
                           padding: '1rem 1.25rem',
                           background: '#fff',
-                          border: '1px solid #e5e7eb',
+                          border: '1px solid #e2e8f0',
                           borderRadius: '0.5rem',
                           textDecoration: 'none',
                           color: 'inherit',
-                          transition: 'border-color 0.15s, box-shadow 0.15s',
+                          transition: 'border-color 0.2s, box-shadow 0.2s, transform 0.15s',
+                          outline: 'none',
+                          borderLeft: `3px solid ${TYPE_COLORS[item.type] || '#e2e8f0'}`,
                         }}
                         onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).style.borderColor = '#1e3a5f';
-                          (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(30,58,95,0.1)';
+                          (e.currentTarget as HTMLElement).style.borderColor = TYPE_COLORS[item.type] || '#3b82f6';
+                          (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)';
+                          (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
                         }}
                         onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).style.borderColor = '#e5e7eb';
+                          (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0';
+                          (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                          (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                          (e.currentTarget as HTMLElement).style.borderLeftColor = TYPE_COLORS[item.type] || '#e2e8f0';
+                        }}
+                        onFocus={e => {
+                          (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 3px rgba(59,130,246,0.2)';
+                        }}
+                        onBlur={e => {
                           (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                         }}
                       >
                         {/* Header-Zeile */}
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                          <span style={{
-                            padding: '0.25rem 0.5rem',
-                            borderRadius: '0.25rem',
-                            fontSize: '0.625rem',
-                            fontWeight: 700,
-                            textTransform: 'uppercase',
-                            color: '#fff',
-                            background: TYPE_COLORS[item.type] || '#6b7280',
-                            whiteSpace: 'nowrap',
-                            flexShrink: 0,
-                            marginTop: '2px',
-                          }}>
-                            {TYPE_LABELS[item.type] || item.type}
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '0.375rem' }}>
+                          {/* Type Badge */}
+                          <span style={{ flexShrink: 0, marginTop: '2px', color: TYPE_COLORS[item.type] || '#64748b' }}>
+                            <TypeIcon type={item.type} />
                           </span>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#111827', lineHeight: 1.4 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem', flexWrap: 'wrap' }}>
+                              <span className={'badge ' + (TYPE_BADGE_CLASS[item.type] || 'badge-slate')} style={{ fontSize: '0.6875rem' }}>
+                                {TYPE_LABELS[item.type] || item.type}
+                              </span>
+                              {item.meeting_state && (
+                                <span className="badge badge-slate" style={{ fontSize: '0.6875rem' }}>
+                                  {MEETING_STATE_LABELS[item.meeting_state] || item.meeting_state}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: '#0f172a', lineHeight: 1.4, letterSpacing: '-0.01em' }}>
                               {item.highlight?.name ? (
                                 <HighlightedText html={item.highlight.name[0]} />
                               ) : (
@@ -830,42 +1022,53 @@ export default function SuchePage() {
                               )}
                             </div>
                             {/* Meta-Zeile */}
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.25rem', fontSize: '0.75rem', color: '#6b7280' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.625rem', marginTop: '0.375rem', fontSize: '0.8125rem', color: '#64748b', alignItems: 'center' }}>
                               {item.reference && (
-                                <span>
+                                <span style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.75rem', color: '#3b82f6', fontWeight: 600 }}>
                                   {item.highlight?.reference ? (
                                     <HighlightedText html={item.highlight.reference[0]} />
                                   ) : item.reference}
                                 </span>
                               )}
-                              {item.date && <span>{formatDate(item.date)}</span>}
-                              {item.paper_type && <span>{item.paper_type}</span>}
-                              {item.meeting_state && (
-                                <span style={{
-                                  padding: '0.1rem 0.4rem',
-                                  borderRadius: '0.25rem',
-                                  background: '#f3f4f6',
-                                  fontSize: '0.7rem',
-                                }}>
-                                  {MEETING_STATE_LABELS[item.meeting_state] || item.meeting_state}
+                              {item.date && (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                  </svg>
+                                  {formatDate(item.date)}
                                 </span>
                               )}
-                              {item.organization_name && <span>{item.organization_name}</span>}
+                              {item.paper_type && <span>{item.paper_type}</span>}
+                              {item.organization_name && (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                  </svg>
+                                  {item.organization_name}
+                                </span>
+                              )}
                             </div>
                           </div>
+                          {/* Arrow */}
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '4px' }} aria-hidden="true">
+                            <polyline points="9 18 15 12 9 6"/>
+                          </svg>
                         </div>
 
                         {/* Highlight-Snippets */}
                         {item.highlight?.content && (
                           <div style={{
-                            marginTop: '0.5rem',
-                            paddingTop: '0.5rem',
-                            borderTop: '1px solid #f3f4f6',
+                            marginTop: '0.625rem',
+                            paddingTop: '0.625rem',
+                            borderTop: '1px solid #f1f5f9',
                             fontSize: '0.8125rem',
-                            color: '#4b5563',
+                            color: '#475569',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '0.25rem',
+                            lineHeight: 1.6,
                           }}>
                             {item.highlight.content.slice(0, 2).map((snippet, si) => (
                               <p key={si} style={{ margin: 0 }}>
@@ -893,28 +1096,14 @@ export default function SuchePage() {
                 )}
               </>
             )}
-          </main>
+          </div>
         </div>
       </div>
 
       {/* Responsive Styles */}
       <style>{`
-        mark {
-          background: #fef08a;
-          color: inherit;
-          padding: 0 2px;
-          border-radius: 2px;
-        }
-        .sr-only {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0,0,0,0);
-          white-space: nowrap;
-          border: 0;
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
         @media (max-width: 768px) {
           .filter-sidebar { display: none !important; }
@@ -935,17 +1124,23 @@ function FilterTag({ label, onRemove }: { label: string; onRemove: () => void })
       display: 'inline-flex',
       alignItems: 'center',
       gap: '0.375rem',
-      padding: '0.25rem 0.5rem',
-      background: '#e0e7ff',
-      color: '#3730a3',
+      padding: '0.25rem 0.625rem',
+      background: '#dbeafe',
+      color: '#1e40af',
       borderRadius: '0.375rem',
       fontSize: '0.75rem',
-      fontWeight: 500,
+      fontWeight: 600,
+      border: '1px solid #bfdbfe',
     }}>
       {label}
       <button
         onClick={onRemove}
-        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6366f1', lineHeight: 1, padding: 0, fontSize: '0.875rem' }}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: '#3b82f6', lineHeight: 1, padding: 0, fontSize: '1rem',
+          display: 'flex', alignItems: 'center',
+          fontFamily: 'inherit',
+        }}
         aria-label={`${label} entfernen`}
       >
         &times;
@@ -982,11 +1177,13 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
         style={paginationBtnStyle(false, currentPage === 1)}
         aria-label="Vorherige Seite"
       >
-        &lsaquo;
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
       </button>
       {pages.map((p, i) =>
         p === '...' ? (
-          <span key={`ellipsis-${i}`} style={{ padding: '0.5rem 0.25rem', color: '#9ca3af' }}>...</span>
+          <span key={`ellipsis-${i}`} style={{ padding: '0.5rem 0.375rem', color: '#94a3b8', display: 'flex', alignItems: 'center' }}>...</span>
         ) : (
           <button
             key={p}
@@ -1005,7 +1202,9 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
         style={paginationBtnStyle(false, currentPage === totalPages)}
         aria-label="Naechste Seite"
       >
-        &rsaquo;
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </button>
     </nav>
   );
@@ -1015,24 +1214,13 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
 // Styles
 // ============================================================
 
-const labelStyle: React.CSSProperties = {
-  display: 'block',
+const filterLabelStyle: React.CSSProperties = {
   fontSize: '0.75rem',
-  fontWeight: 600,
-  color: '#374151',
-  marginBottom: '0.375rem',
+  fontWeight: 700,
+  color: '#64748b',
+  marginBottom: '0.5rem',
   textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-};
-
-const selectStyle: React.CSSProperties = {
-  width: '100%',
-  padding: '0.375rem 0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.25rem',
-  fontSize: '0.875rem',
-  background: '#fff',
-  cursor: 'pointer',
+  letterSpacing: '0.06em',
 };
 
 const facetBtnStyle: React.CSSProperties = {
@@ -1040,30 +1228,23 @@ const facetBtnStyle: React.CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   width: '100%',
-  padding: '0.375rem 0.5rem',
-  border: '1px solid #d1d5db',
-  borderRadius: '0.25rem',
+  padding: '0.5rem 0.625rem',
+  border: '1px solid #e2e8f0',
+  borderRadius: '0.375rem',
   cursor: 'pointer',
   fontSize: '0.8125rem',
-  fontWeight: 500,
-  transition: 'all 0.1s',
+  transition: 'all 0.15s',
+  fontFamily: 'inherit',
+  textAlign: 'left',
 };
 
 const facetCountStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  background: 'rgba(0,0,0,0.1)',
-  padding: '0.1rem 0.35rem',
-  borderRadius: '0.75rem',
-};
-
-const spinnerStyle: React.CSSProperties = {
-  width: '40px',
-  height: '40px',
-  border: '3px solid #e5e7eb',
-  borderTopColor: '#1e3a5f',
-  borderRadius: '50%',
-  animation: 'spin 0.8s linear infinite',
-  margin: '0 auto',
+  fontSize: '0.6875rem',
+  fontWeight: 600,
+  background: 'rgba(0,0,0,0.06)',
+  padding: '0.1rem 0.4rem',
+  borderRadius: '9999px',
+  flexShrink: 0,
 };
 
 function paginationBtnStyle(active: boolean, disabled: boolean): React.CSSProperties {
@@ -1072,12 +1253,39 @@ function paginationBtnStyle(active: boolean, disabled: boolean): React.CSSProper
     height: '36px',
     padding: '0 0.5rem',
     border: '1px solid',
-    borderColor: active ? '#1e3a5f' : '#d1d5db',
+    borderColor: active ? '#1e3a5f' : '#e2e8f0',
     borderRadius: '0.375rem',
-    background: active ? '#1e3a5f' : disabled ? '#f9fafb' : '#fff',
-    color: active ? '#fff' : disabled ? '#9ca3af' : '#374151',
+    background: active ? '#1e3a5f' : disabled ? '#f8fafc' : '#fff',
+    color: active ? '#fff' : disabled ? '#cbd5e1' : '#374151',
     fontWeight: active ? 700 : 400,
     cursor: disabled ? 'not-allowed' : 'pointer',
     fontSize: '0.875rem',
+    fontFamily: 'inherit',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.15s',
   };
+}
+
+
+export default function SuchePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
+        <div style={{
+          width: '40px', height: '40px',
+          border: '3px solid #e2e8f0',
+          borderTopColor: '#3b82f6',
+          borderRadius: '50%',
+          animation: 'spin 0.7s linear infinite',
+          margin: '0 auto 1rem',
+        }} aria-hidden="true" />
+        <p>Laden...</p>
+        <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
+      </div>
+    }>
+      <SuchePageInner />
+    </Suspense>
+  );
 }

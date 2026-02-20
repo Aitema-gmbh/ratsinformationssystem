@@ -379,7 +379,7 @@ export interface OParlLocation extends OParlBase {
   /** Sub-locality / district */
   subLocality?: string;
   /** GeoJSON geometry object */
-  geojson?: GeoJSON.Geometry;
+  geojson?: unknown; // GeoJSON.Geometry - @types/geojson required
 }
 
 // ===================================================================
