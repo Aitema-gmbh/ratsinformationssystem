@@ -8,6 +8,8 @@ interface Paper {
   reference: string;
   date: string;
   paper_type: string;
+  ai_summary?: string;
+  ai_summary_generated_at?: string;
 }
 
 const paperTypes = [
@@ -49,6 +51,26 @@ export default function VorlagenPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [paperType, setPaperType] = useState('');
+  const [generatingSummary, setGeneratingSummary] = useState<string | null>(null);
+
+  const handleGenerateSummary = async (paperId: string) => {
+    setGeneratingSummary(paperId);
+    try {
+      const res = await fetch(`/api/papers/${paperId}/summarize`, { method: 'POST' });
+      const data = await res.json();
+      if (data.summary) {
+        setPapers(prev => prev.map(p =>
+          p.id === paperId
+            ? { ...p, ai_summary: data.summary, ai_summary_generated_at: data.generated_at }
+            : p
+        ));
+      }
+    } catch (e) {
+      console.error('Zusammenfassung fehlgeschlagen:', e);
+    } finally {
+      setGeneratingSummary(null);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -222,6 +244,36 @@ export default function VorlagenPage() {
                   </td>
                   <td style={{ ...tdStyle, color: '#0f172a', fontWeight: 500, lineHeight: 1.5 }}>
                     {p.name}
+                    {p.ai_summary && (
+                      <div style={{ marginTop: '0.375rem', display: 'flex', alignItems: 'flex-start', gap: '0.375rem' }}>
+                        <span style={{
+                          fontSize: '0.7rem', fontWeight: 600, color: '#2563eb',
+                          background: '#eff6ff', border: '1px solid #bfdbfe',
+                          borderRadius: '0.25rem', padding: '0.1rem 0.35rem',
+                          whiteSpace: 'nowrap', flexShrink: 0,
+                        }}>
+                          KI
+                        </span>
+                        <p style={{ fontSize: '0.8125rem', color: '#64748b', fontStyle: 'italic', margin: 0, lineHeight: 1.4 }}>
+                          {p.ai_summary}
+                        </p>
+                      </div>
+                    )}
+                    {!p.ai_summary && (
+                      <button
+                        onClick={() => handleGenerateSummary(p.id)}
+                        disabled={generatingSummary === p.id}
+                        style={{
+                          marginTop: '0.25rem',
+                          fontSize: '0.75rem', color: '#6b7280',
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          padding: '0.125rem 0', textDecoration: 'underline',
+                          opacity: generatingSummary === p.id ? 0.5 : 1,
+                        }}
+                      >
+                        {generatingSummary === p.id ? 'KI generiert...' : 'KI-Zusammenfassung erstellen'}
+                      </button>
+                    )}
                   </td>
                   <td style={tdStyle}>
                     <span className={'badge ' + (typeColors[p.paper_type] || 'badge-slate')}>

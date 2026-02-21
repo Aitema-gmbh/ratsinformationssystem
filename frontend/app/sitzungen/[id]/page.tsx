@@ -280,6 +280,19 @@ export default function SitzungDetailPage() {
               Wortprotokoll
             </a>
           )}
+          {/* R2: iCal Export */}
+          <a
+            href={`${API_BASE}/export/meeting/${meetingId}/sitzung.ics`}
+            style={{
+              ...docLinkStyle,
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              color: '#166534',
+            }}
+            download={`sitzung-${meetingId}.ics`}
+          >
+            In Kalender exportieren (.ics)
+          </a>
         </div>
 
         {/* Livestream Placeholder */}
