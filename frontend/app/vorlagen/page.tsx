@@ -230,6 +230,10 @@ export default function VorlagenPage() {
                   <td style={tdStyle}>
                     <a
                       href={'/vorlagen/' + (p.id.split('/').pop() || p.id)}
+                      onClick={() => {
+                        const w = window as unknown as { plausible?: (e: string, o: object) => void };
+                        if (w.plausible) w.plausible('vorlage_angesehen', { props: { type: p.paper_type } });
+                      }}
                       style={{
                         color: '#2563eb',
                         textDecoration: 'none',

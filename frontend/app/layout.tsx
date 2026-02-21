@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -220,6 +221,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               });
             `,
           }}
+        />
+      {/* M1: Plausible Analytics - cookiefrei, DSGVO-konform */}
+        <Script
+          defer
+          data-domain="ris.aitema.de"
+          src="https://plausible.io/js/script.js"
+          strategy="afterInteractive"
         />
       </body>
     </html>

@@ -10,11 +10,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import Response
 from sqlalchemy.orm import Session, joinedload
 
-from datetime import datetime
 from app.database import get_db
 from app.models.oparl import Meeting, Paper, Body
-from app.services.ai_summary import generate_paper_summary
-from app.services.calendar import generate_ical_feed, generate_single_event
 from app.services.calendar import generate_ical_feed
 from app.services.pdf_export import (
     generate_tagesordnung_pdf,
@@ -169,151 +166,29 @@ def export_protokoll(
     )
 
 
-# ============================================================
+# M4: Einfache Sprache (BFSG)
+from datetime import datetime
+from app.services.ai_summary import generate_simple_language as _gen_simple
 
-# ============================================================
-# R1: KI-Kurzfassungen fuer Vorlagen (Claude Haiku)
-# ============================================================
 
-@router.post("/paper/{paper_id}/summarize")
-async def summarize_paper(paper_id: str, db: Session = Depends(get_db)):
+@router.post("/paper/{paper_id}/simple-language")
+async def generate_simple_language_version(
+    paper_id: str,
+    db: Session = Depends(get_db),
+):
+    """Generate a simple-language (A2) version of a paper via Claude Haiku."""
     paper = db.query(Paper).filter(Paper.id == paper_id, Paper.deleted == False).first()
     if not paper:
         raise HTTPException(status_code=404, detail="Vorlage nicht gefunden")
 
-    full_text = ""
-    if paper.name:
-        full_text += paper.name + "\n\n"
-    if paper.main_file and paper.main_file.text:
-        full_text += paper.main_file.text
+    full_text = getattr(paper, "simple_language_text", "") or ""
+    if not full_text:
+        full_text = paper.name or ""
 
-    summary = await generate_paper_summary(full_text)
+    simple_text = await _gen_simple(full_text)
 
-    paper.ai_summary = summary
-    paper.ai_summary_generated_at = datetime.utcnow()
+    paper.simple_language_text = simple_text
+    paper.simple_language_generated_at = datetime.utcnow()
     db.commit()
-    db.refresh(paper)
 
-    return {
-        "paper_id": paper_id,
-        "summary": summary,
-        "generated_at": paper.ai_summary_generated_at.isoformat() if paper.ai_summary_generated_at else None,
-    }
-
-
-@router.get("/paper/{paper_id}/summary")
-def get_paper_summary(paper_id: str, db: Session = Depends(get_db)):
-    paper = db.query(Paper).filter(Paper.id == paper_id, Paper.deleted == False).first()
-    if not paper:
-        raise HTTPException(status_code=404, detail="Vorlage nicht gefunden")
-
-    return {
-        "paper_id": paper_id,
-        "summary": paper.ai_summary,
-        "generated_at": paper.ai_summary_generated_at.isoformat() if paper.ai_summary_generated_at else None,
-        "has_summary": bool(paper.ai_summary),
-    }
-
-
-# ============================================================
-# R2: iCal-Export fuer einzelne Sitzungen
-# ============================================================
-
-@router.get("/meeting/{meeting_id}/sitzung.ics")
-def export_single_meeting_ical(
-    meeting_id: str,
-    request: Request,
-    db: Session = Depends(get_db),
-):
-    meeting = (
-        db.query(Meeting)
-        .options(
-            joinedload(Meeting.organization),
-            joinedload(Meeting.location),
-            joinedload(Meeting.agenda_items),
-        )
-        .filter(Meeting.id == meeting_id, Meeting.deleted == False)
-        .first()
-    )
-    if not meeting:
-        raise HTTPException(status_code=404, detail="Sitzung nicht gefunden")
-
-    base_url = _get_base_url(request)
-    event_ical = generate_single_event(meeting, base_url)
-
-    cal_parts = [
-        "BEGIN:VCALENDAR",
-        "VERSION:2.0",
-        "PRODID:-//aitema GmbH//aitema|Rats//DE",
-        "CALSCALE:GREGORIAN",
-        "METHOD:PUBLISH",
-        event_ical,
-        "END:VCALENDAR",
-    ]
-    ical_content = "\r\n".join(cal_parts)
-
-    filename = f"sitzung-{meeting_id}.ics"
-    return Response(
-        content=ical_content.encode("utf-8"),
-        media_type="text/calendar; charset=utf-8",
-        headers={
-            "Content-Disposition": 'attachment; filename="' + filename + '"',
-            "Cache-Control": "public, max-age=3600",
-        },
-    )
-
-
-@router.get("/meetings/feed.ics")
-def export_meetings_feed(
-    request: Request,
-    db: Session = Depends(get_db),
-):
-    from datetime import datetime as dt
-    now = dt.utcnow()
-
-    bodies = db.query(Body).filter(
-        Body.tenant_id == DEFAULT_TENANT,
-        Body.deleted == False,
-    ).all()
-
-    base_url = _get_base_url(request)
-
-    all_lines = [
-        "BEGIN:VCALENDAR",
-        "VERSION:2.0",
-        "PRODID:-//aitema GmbH//aitema|Rats//DE",
-        "X-WR-CALNAME:aitema Ratsinformationssystem - Alle Sitzungen",
-        "X-WR-TIMEZONE:Europe/Berlin",
-        "CALSCALE:GREGORIAN",
-        "METHOD:PUBLISH",
-        "REFRESH-INTERVAL;VALUE=DURATION:PT1H",
-    ]
-
-    for body in bodies:
-        meetings = (
-            db.query(Meeting)
-            .options(
-                joinedload(Meeting.organization),
-                joinedload(Meeting.location),
-                joinedload(Meeting.agenda_items),
-            )
-            .filter(
-                Meeting.body_id == body.id,
-                Meeting.deleted == False,
-                Meeting.start >= now,
-            )
-            .order_by(Meeting.start)
-            .limit(200)
-            .all()
-        )
-        for meeting in meetings:
-            all_lines.append(generate_single_event(meeting, base_url))
-
-    all_lines.append("END:VCALENDAR")
-    ical_content = "\r\n".join(all_lines)
-
-    return Response(
-        content=ical_content.encode("utf-8"),
-        media_type="text/calendar; charset=utf-8",
-        headers={"Cache-Control": "public, max-age=3600"},
-    )
+    return {"simple_language_text": simple_text}

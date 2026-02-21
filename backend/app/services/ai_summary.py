@@ -1,55 +1,39 @@
 import os
-import logging
+import anthropic
 
-logger = logging.getLogger(__name__)
+_client = None
 
 
-async def generate_paper_summary(full_text: str) -> str:
-    """
-    Generiert eine 2-saetzige Zusammenfassung einer Verwaltungsvorlage.
-    Fallback auf Text-Kuerzung wenn kein ANTHROPIC_API_KEY gesetzt.
-    """
-    if not full_text or not full_text.strip():
-        return ""
+def _get_client():
+    global _client
+    if _client is None and os.getenv("ANTHROPIC_API_KEY"):
+        _client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    return _client
 
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        logger.info("ANTHROPIC_API_KEY nicht gesetzt - Fallback auf Text-Kuerzung")
-        return _text_fallback(full_text)
+
+async def generate_simple_language(full_text: str) -> str:
+    """Generates a simple language (A2 level) version of a council paper."""
+    client = _get_client()
+    if not client:
+        return full_text[:500] + "..." if len(full_text) > 500 else full_text
 
     try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
-
         message = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=200,
+            max_tokens=500,
             messages=[{
                 "role": "user",
                 "content": (
-                    "Fasse folgende Verwaltungsvorlage in genau 2 Saetzen zusammen. "
-                    "Neutral, sachlich, kein Fachjargon, verstaendlich fuer alle Buerger:\n\n"
-                    + full_text[:4000]
+                    "Erklaere folgende Verwaltungsvorlage in einfacher Sprache (A2-Niveau):\n"
+                    "- Kurze Saetze (max. 15 Woerter)\n"
+                    "- Keine Fachbegriffe oder erklaeren falls noetig\n"
+                    "- Aktive Sprache\n"
+                    "- Max. 3 Absaetze\n\n"
+                    "Vorlage:\n" + full_text[:3000]
                 ),
-            }]
+            }],
         )
-        return message.content[0].text.strip()
-
-    except ImportError:
-        logger.warning("anthropic-Paket nicht installiert - Fallback")
-        return _text_fallback(full_text)
+        return message.content[0].text
     except Exception as e:
-        logger.error("KI-Zusammenfassung fehlgeschlagen: %s", e)
-        return _text_fallback(full_text)
-
-
-def _text_fallback(text: str, max_chars: int = 300) -> str:
-    """Einfache Text-Kuerzung als Fallback ohne KI."""
-    text = text.strip()
-    if len(text) <= max_chars:
-        return text
-    truncated = text[:max_chars]
-    last_period = max(truncated.rfind(". "), truncated.rfind(".\n"))
-    if last_period > max_chars // 2:
-        return truncated[:last_period + 1]
-    return truncated + "..."
+        print(f"Simple language generation failed: {e}")
+        return full_text[:500]

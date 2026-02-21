@@ -298,6 +298,8 @@ class Paper(Base, OParlMixin):
     date = mapped_column(Date, nullable=True)
     paper_type = mapped_column(String(128), nullable=True, comment="Vorlage, Antrag, Anfrage, etc.")
     main_file_id = mapped_column(String(36), ForeignKey('files.id'), nullable=True)
+    simple_language_text = mapped_column(Text, nullable=True, comment="KI-generierte einfache Sprache (A2)")
+    simple_language_generated_at = mapped_column(DateTime, nullable=True)
 
     # R1: KI-Kurzfassung (Claude Haiku)
     ai_summary = mapped_column(Text, nullable=True, comment="KI-generierte Kurzfassung")
