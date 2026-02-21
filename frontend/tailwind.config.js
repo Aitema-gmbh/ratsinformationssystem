@@ -75,6 +75,7 @@ module.exports = {
         'slide-up': 'slideUp 0.3s ease-out',
         'shimmer': 'shimmer 1.5s infinite',
         'pulse-ring': 'pulseRing 2s ease infinite',
+        'skeleton': 'skeleton-shimmer 1.6s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -97,6 +98,10 @@ module.exports = {
           '0%':   { boxShadow: '0 0 0 0 rgba(59,130,246,0.4)' },
           '70%':  { boxShadow: '0 0 0 8px rgba(59,130,246,0)' },
           '100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0)' },
+        },
+        'skeleton-shimmer': {
+          '0%':   { backgroundPosition: '200% center' },
+          '100%': { backgroundPosition: '-200% center' },
         },
       },
     },

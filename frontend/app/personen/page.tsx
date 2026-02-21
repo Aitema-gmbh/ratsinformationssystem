@@ -37,6 +37,13 @@ const fraktionColors = [
   'rgba(16,185,129,0.12)', 'rgba(245,158,11,0.12)',
   'rgba(239,68,68,0.12)',
 ];
+const avatarGradients = [
+  'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
+  'linear-gradient(135deg, #5b21b6 0%, #8b5cf6 100%)',
+  'linear-gradient(135deg, #065f46 0%, #059669 100%)',
+  'linear-gradient(135deg, #92400e 0%, #d97706 100%)',
+  'linear-gradient(135deg, #991b1b 0%, #ef4444 100%)',
+];
 const fraktionBorders = [
   '#93c5fd', '#c4b5fd', '#6ee7b7', '#fcd34d', '#fca5a5',
 ];
@@ -64,7 +71,13 @@ function PersonCard({ person, fraktionen, gremien }: {
     .map(mb => mb.organizationName || '')
     .filter(Boolean) || [];
 
-  const colorIdx = fraktionName.length % fraktionColors.length;
+  // Deterministic color hash based on full name for unique avatar colors
+  const hashName = (s: string) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
+    return Math.abs(h);
+  };
+  const colorIdx = hashName(person.name || 'X') % fraktionColors.length;
 
   return (
     <li>
@@ -103,7 +116,7 @@ function PersonCard({ person, fraktionen, gremien }: {
         <div style={{
           width: '52px', height: '52px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #1e3a5f, #1e40af)',
+          background: avatarGradients[colorIdx],
           color: '#fff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: '1.0625rem', fontWeight: 700,
