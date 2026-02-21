@@ -55,6 +55,25 @@ interface AutocompleteSuggestion {
 // Hilfskonstanten
 // ============================================================
 
+
+// Semantic search types
+interface SemanticResult {
+  id: string;
+  name?: string;
+  paper_type?: string;
+  date?: string;
+  reference?: string;
+  similarity_score: number;
+}
+
+interface SemanticSearchResponse {
+  results: SemanticResult[];
+  mode: string;
+  query: string;
+  total: number;
+  message?: string;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -189,6 +208,12 @@ function SuchePageInner() {
 
   // Mobile-Filter-Drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Semantische Suche
+  const [searchMode, setSearchMode] = useState<'keyword' | 'semantic'>('keyword');
+  const [semanticResults, setSemanticResults] = useState<SemanticSearchResponse | null>(null);
+  const [semanticLoading, setSemanticLoading] = useState(false);
+
+
 
   const autocompleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -256,6 +281,30 @@ function SuchePageInner() {
       setLoading(false);
     }
   }, []);
+
+
+  // Semantische Suche ausfuehren
+  const runSemanticSearch = async (q: string) => {
+    if (!q || q.trim().length < 2) {
+      setSemanticResults(null);
+      return;
+    }
+    setSemanticLoading(true);
+    try {
+      const params = new URLSearchParams({ query: q.trim(), limit: '10' });
+      const resp = await fetch(`${API_URL}/api/v1/search/semantic?${params}`, {
+        method: 'POST',
+      });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data: SemanticSearchResponse = await resp.json();
+      setSemanticResults(data);
+    } catch (err) {
+      console.error('Semantische Suche fehlgeschlagen:', err);
+      setSemanticResults(null);
+    } finally {
+      setSemanticLoading(false);
+    }
+  };
 
   // Wenn URL-Parameter sich aendern: Suche
   useEffect(() => {
@@ -602,7 +651,7 @@ function SuchePageInner() {
         </div>
 
         {/* Suchleiste */}
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '1.25rem' }}>
           <form
             role="search"
             aria-label="Ratsinformationssystem durchsuchen"
@@ -842,8 +891,8 @@ function SuchePageInner() {
           {/* Ergebnis-Bereich */}
           <div style={{ flex: 1, minWidth: 0 }} aria-live="polite" aria-busy={loading}>
 
-            {/* Loading Skeleton */}
-            {loading && (
+            {/* Loading Skeleton (Stichwortsuche) */}
+            {searchMode === 'keyword' && loading && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
@@ -857,8 +906,8 @@ function SuchePageInner() {
               </div>
             )}
 
-            {/* Ergebnis-Header */}
-            {!loading && results && (
+            {/* Ergebnis-Header (Stichwortsuche) */}
+            {searchMode === 'keyword' && !loading && results && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }} role="status">
                   <strong style={{ color: '#0f172a' }}>{results.total.toLocaleString('de-DE')}</strong> Ergebnis{results.total !== 1 ? 'se' : ''} fuer &bdquo;{results.query}&ldquo;
@@ -891,7 +940,7 @@ function SuchePageInner() {
             )}
 
             {/* Empty State */}
-            {!loading && results && results.total === 0 && (
+            {searchMode === 'keyword' && !loading && results && results.total === 0 && (
               <div style={{
                 textAlign: 'center', padding: '5rem 2rem',
                 background: '#fff', borderRadius: '0.75rem', border: '1px solid #e2e8f0',
@@ -924,8 +973,132 @@ function SuchePageInner() {
               </div>
             )}
 
+
+            {/* Semantische Suchergebnisse */}
+            {searchMode === 'semantic' && !semanticLoading && semanticResults && (
+              <>
+                {semanticResults.message && (
+                  <div style={{
+                    padding: '1rem 1.25rem',
+                    background: '#fef3c7',
+                    border: '1px solid #fde68a',
+                    borderRadius: '0.75rem',
+                    marginBottom: '1rem',
+                    fontSize: '0.875rem',
+                    color: '#92400e',
+                  }}>
+                    {semanticResults.message}
+                  </div>
+                )}
+                {semanticResults.results.length > 0 && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <p style={{ margin: 0, fontSize: '0.875rem', color: '#64748b', fontWeight: 500 }} role="status">
+                        <strong style={{ color: '#0f172a' }}>{semanticResults.total}</strong> semantische Treffer fuer &bdquo;{semanticResults.query}&ldquo;
+                      </p>
+                      <span style={{
+                        fontSize: '0.75rem', fontWeight: 600,
+                        padding: '0.25rem 0.625rem',
+                        background: '#ede9fe',
+                        color: '#6d28d9',
+                        borderRadius: '9999px',
+                      }}>
+                        KI-Suche
+                      </span>
+                    </div>
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+                      {semanticResults.results.map((item) => (
+                        <li key={item.id}>
+                          <a
+                            href={`/vorlagen/${item.id.split('/').pop() || item.id}`}
+                            style={{
+                              display: 'block',
+                              padding: '1.125rem 1.25rem',
+                              background: '#fff',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '0.75rem',
+                              textDecoration: 'none',
+                              transition: 'box-shadow 0.15s, border-color 0.15s',
+                            }}
+                            onMouseOver={e => {
+                              (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+                              (e.currentTarget as HTMLAnchorElement).style.borderColor = '#a5b4fc';
+                            }}
+                            onMouseOut={e => {
+                              (e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none';
+                              (e.currentTarget as HTMLAnchorElement).style.borderColor = '#e2e8f0';
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem' }}>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                {item.paper_type && (
+                                  <span style={{
+                                    display: 'inline-block',
+                                    fontSize: '0.6875rem', fontWeight: 700,
+                                    textTransform: 'uppercase', letterSpacing: '0.05em',
+                                    padding: '0.1875rem 0.5rem',
+                                    background: '#dbeafe', color: '#1e40af',
+                                    borderRadius: '4px',
+                                    marginBottom: '0.375rem',
+                                  }}>
+                                    {item.paper_type}
+                                  </span>
+                                )}
+                                <p style={{ margin: 0, fontWeight: 600, fontSize: '0.9375rem', color: '#0f172a', lineHeight: 1.4 }}>
+                                  {item.name || 'Ohne Titel'}
+                                </p>
+                                {(item.reference || item.date) && (
+                                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.8125rem', color: '#64748b' }}>
+                                    {item.reference && <span>{item.reference}</span>}
+                                    {item.reference && item.date && <span style={{ margin: '0 0.5rem' }}>·</span>}
+                                    {item.date && <span>{new Date(item.date).toLocaleDateString('de-DE')}</span>}
+                                  </p>
+                                )}
+                              </div>
+                              <span style={{
+                                flexShrink: 0,
+                                fontSize: '0.75rem', fontWeight: 700,
+                                padding: '0.3125rem 0.625rem',
+                                borderRadius: '9999px',
+                                background: item.similarity_score >= 80 ? '#dcfce7' : item.similarity_score >= 65 ? '#fef9c3' : '#f1f5f9',
+                                color: item.similarity_score >= 80 ? '#15803d' : item.similarity_score >= 65 ? '#a16207' : '#64748b',
+                              }}>
+                                {item.similarity_score}%
+                              </span>
+                            </div>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {semanticResults.results.length === 0 && !semanticResults.message && (
+                  <div style={{ textAlign: 'center', padding: '3rem 2rem', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.75rem' }}>
+                    <p style={{ color: '#64748b', fontSize: '0.9375rem' }}>
+                      Keine semantisch aehnlichen Dokumente fuer &bdquo;{semanticResults.query}&ldquo; gefunden.
+                    </p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Semantic Loading */}
+            {searchMode === 'semantic' && semanticLoading && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.75rem', padding: '1.25rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <div className="skeleton" style={{ height: '1.5rem', width: '60px', borderRadius: '4px' }} />
+                      <div className="skeleton" style={{ height: '1.125rem', flex: 1, maxWidth: '60%' }} />
+                    </div>
+                    <div className="skeleton" style={{ height: '0.875rem', width: '40%' }} />
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Noch keine Suche */}
-            {!loading && !results && !query && (
+            {searchMode === 'keyword' && !loading && !results && !query && (
               <div style={{
                 textAlign: 'center', padding: '5rem 2rem',
                 background: '#fff', borderRadius: '0.75rem', border: '1px solid #e2e8f0',
@@ -960,7 +1133,7 @@ function SuchePageInner() {
             )}
 
             {/* Ergebnis-Liste */}
-            {!loading && results && results.data.length > 0 && (
+            {searchMode === 'keyword' && !loading && results && results.data.length > 0 && (
               <>
                 <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
                   {results.data.map((item, i) => (
