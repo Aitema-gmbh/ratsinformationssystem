@@ -2,6 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+// VotingSection dynamisch laden (kein SSR, da Chart.js Canvas braucht)
+const VotingSection = dynamic(
+  () => import('../../../components/VotingSection'),
+  { ssr: false, loading: () => (
+    <div className="space-y-3" aria-busy="true">
+      <div className="bg-slate-100 rounded-lg h-32 animate-pulse" />
+    </div>
+  )}
+);
 
 interface MeetingDetail {
   id: string;
@@ -170,6 +181,12 @@ export default function SitzungDetailPage() {
 
   return (
     <div>
+      {/* Chart.js via CDN einbinden */}
+      <script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+        async
+      />
+
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" style={{ marginBottom: '1.5rem', fontSize: '0.875rem' }}>
         <ol style={{ listStyle: 'none', display: 'flex', gap: '0.5rem', color: '#6b7280' }}>
@@ -430,6 +447,14 @@ export default function SitzungDetailPage() {
             ))}
           </ol>
         )}
+      </section>
+
+      {/* ── C2: Abstimmungsergebnisse ──────────────────────────────────── */}
+      <section aria-labelledby="voting-heading" style={{ marginBottom: '1.5rem' }}>
+        <h2 id="voting-heading" style={sectionHeading}>
+          Abstimmungsergebnisse
+        </h2>
+        <VotingSection meetingId={meetingId} />
       </section>
 
       {/* Anwesenheitsliste */}
