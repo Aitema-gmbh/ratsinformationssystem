@@ -29,6 +29,7 @@ from app.models.oparl import (  # noqa: F401 - all models
     File,
     # Association tables are part of Base.metadata automatically
 )
+from app.models.subscription import Subscription  # noqa: F401
 
 # Alembic Config object
 config = context.config
