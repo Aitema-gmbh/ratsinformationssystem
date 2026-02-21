@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { SubscribeButton } from '@/components/SubscribeButton';
 
 interface Meeting {
   id: string;
@@ -144,6 +145,9 @@ export default function SitzungenPage() {
           </div>
         </div>
         <p className="page-subtitle">Alle Sitzungen der kommunalen Gremien im Überblick</p>
+        <div style={{ marginTop: "0.5rem" }}>
+          <SubscribeButton targetId="all" targetLabel="Sitzungskalender" type="meeting_calendar" />
+        </div>
       </div>
 
       {/* ── View Toggle ── */}

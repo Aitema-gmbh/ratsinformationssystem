@@ -13,6 +13,7 @@ import os
 from app.database import init_db
 from app.routers import oparl, export
 from app.routers.search import router as search_router
+from app.routers.subscriptions import router as subscriptions_router
 
 
 @asynccontextmanager
@@ -55,6 +56,7 @@ async def add_process_time(request: Request, call_next):
 app.include_router(oparl.router)
 app.include_router(export.router)
 app.include_router(search_router)
+app.include_router(subscriptions_router)
 
 
 # Health check

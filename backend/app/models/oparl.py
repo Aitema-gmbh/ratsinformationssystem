@@ -156,7 +156,7 @@ class Organization(Base, OParlMixin):
     external_body_id = mapped_column(String(36), nullable=True, comment="Ref to another Body")
 
     body = relationship('Body', back_populates='organizations')
-    memberships = relationship('Membership', back_populates='organization', lazy='dynamic')
+    memberships = relationship('Membership', back_populates='organization', foreign_keys='[Membership.organization_id]', lazy='dynamic')
     location = relationship('Location', foreign_keys=[location_id])
 
     __table_args__ = (

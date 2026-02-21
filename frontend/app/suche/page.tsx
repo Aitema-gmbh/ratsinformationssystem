@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { SubscribeButton } from '@/components/SubscribeButton';
 
 // ============================================================
 // Typen
@@ -401,6 +402,15 @@ function SuchePageInner() {
               <span>Alle Typen</span>
               <span style={facetCountStyle}>{results.total}</span>
             </button>
+            {query.trim().length >= 2 && results.total > 0 && (
+              <div style={{ marginTop: '0.75rem', paddingLeft: '0.5rem' }}>
+                <SubscribeButton
+                  targetId={query.trim()}
+                  targetLabel={`Suche: ${query.trim()}`}
+                  type="keyword"
+                />
+              </div>
+            )}
             {results.facets.by_type.map(f => (
               <button
                 key={f.key}

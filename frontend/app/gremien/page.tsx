@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { SubscribeButton } from '@/components/SubscribeButton';
 
 interface Organization {
   id: string;
@@ -232,6 +233,13 @@ export default function GremienPage() {
                                 Naechste Sitzung: {formatNextMeeting(org.nextMeeting.start)}
                               </span>
                             )}
+                          </div>
+                          <div style={{ marginTop: '0.75rem' }}>
+                            <SubscribeButton
+                              targetId={org.id}
+                              targetLabel={org.name}
+                              type="organization"
+                            />
                           </div>
                         </a>
                       </li>
