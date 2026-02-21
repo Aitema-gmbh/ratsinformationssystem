@@ -164,3 +164,31 @@ def export_protokoll(
         media_type="application/pdf",
         headers={"Content-Disposition": f'inline; filename="{filename}"'},
     )
+
+
+# M4: Einfache Sprache (BFSG)
+from datetime import datetime
+from app.services.ai_summary import generate_simple_language as _gen_simple
+
+
+@router.post("/paper/{paper_id}/simple-language")
+async def generate_simple_language_version(
+    paper_id: str,
+    db: Session = Depends(get_db),
+):
+    """Generate a simple-language (A2) version of a paper via Claude Haiku."""
+    paper = db.query(Paper).filter(Paper.id == paper_id, Paper.deleted == False).first()
+    if not paper:
+        raise HTTPException(status_code=404, detail="Vorlage nicht gefunden")
+
+    full_text = getattr(paper, "simple_language_text", "") or ""
+    if not full_text:
+        full_text = paper.name or ""
+
+    simple_text = await _gen_simple(full_text)
+
+    paper.simple_language_text = simple_text
+    paper.simple_language_generated_at = datetime.utcnow()
+    db.commit()
+
+    return {"simple_language_text": simple_text}
