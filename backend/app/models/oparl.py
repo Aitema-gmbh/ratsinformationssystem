@@ -299,6 +299,10 @@ class Paper(Base, OParlMixin):
     paper_type = mapped_column(String(128), nullable=True, comment="Vorlage, Antrag, Anfrage, etc.")
     main_file_id = mapped_column(String(36), ForeignKey('files.id'), nullable=True)
 
+    # R1: KI-Kurzfassung (Claude Haiku)
+    ai_summary = mapped_column(Text, nullable=True, comment="KI-generierte Kurzfassung")
+    ai_summary_generated_at = mapped_column(DateTime, nullable=True, comment="Zeitstempel der KI-Generierung")
+
     body = relationship('Body', back_populates='papers')
     main_file = relationship('File', foreign_keys=[main_file_id])
     auxiliary_files = relationship('File', secondary=paper_file, lazy='dynamic')

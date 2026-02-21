@@ -151,6 +151,8 @@ export default function KalenderPage() {
   const selectedMeetings = selectedDate ? (meetingsByDate[selectedDate] || []) : [];
 
   const icalUrl = `${process.env.NEXT_PUBLIC_API_URL || ''}/export/calendar/default.ics`;
+  // R2: Neuer Feed-Endpunkt (alle Sitzungen aller Gremien)
+  const feedIcalUrl = '/api/meetings/feed.ics';
 
   if (isMobile) {
     const sortedDates = Object.keys(meetingsByDate).sort();
@@ -236,6 +238,23 @@ export default function KalenderPage() {
             aria-label="Kalender als iCal abonnieren"
           >
             Kalender abonnieren
+          </a>
+          {/* R2: Alle Sitzungen als iCal-Feed abonnieren */}
+          <a
+            href={feedIcalUrl}
+            style={{
+              ...navBtnStyle,
+              textDecoration: 'none',
+              textAlign: 'center',
+              background: '#f0fdf4',
+              color: '#166534',
+              borderColor: '#bbf7d0',
+              fontSize: '0.8125rem',
+            }}
+            aria-label="Alle Sitzungen als iCal-Feed abonnieren"
+            title="Alle zukuenftigen Sitzungen in Outlook/Apple Calendar abonnieren"
+          >
+            Alle Sitzungen (.ics)
           </a>
         </div>
       </div>
