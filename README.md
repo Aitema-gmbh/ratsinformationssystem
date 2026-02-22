@@ -17,6 +17,12 @@
 
 ---
 
+## Screenshots
+
+| Landing Page | Volltextsuche |
+|:---:|:---:|
+| ![Landing Page](docs/screenshots/ris-landing.png) | ![Volltextsuche](docs/screenshots/ris-suche.png) |
+
 ## Was ist aitema|RIS?
 
 aitema|RIS ist ein **offenes Ratsinformationssystem** für kommunale Gremienarbeit. Sitzungen, Tagesordnungen, Beschlussvorlagen und Mandatsträger werden transparent zugänglich — für Bürgerinnen, Bürger und die Verwaltung selbst.
@@ -210,3 +216,4 @@ Entwickelt von [aitema GmbH](https://aitema.de) · AI Innovation for Public Sect
 *GovTech aus Deutschland — für Deutschland.*
 
 </div>
+
