@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const endpoint = searchParams.get("endpoint") || "";

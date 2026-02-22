@@ -15,6 +15,9 @@ services:
       DATABASE_URL: postgresql://aitema:aitema@postgres:5432/ris
       REDIS_URL: redis://redis:6379/0
       SQL_ECHO: 'false'
+      VAPID_PUBLIC_KEY: BAvePkzdLzfX776fjj_lG8x99nxufPHr_cyGVfMauoRiVpSyX14TJ9wqBlHaXJbK1srKtR4GPwyy3CXf_KHCwiU
+      VAPID_PRIVATE_KEY: MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg-62SB29KELXHpHEqPhq4ZIyzE6ZPSJNwqqEKfigh0EahRANCAAQL3j5M3S831---n44_5RvMffZ8bnzx6_3MhlXzGrqEYlaUsl9eEyfcKgZR2lyWytbKyrUeBj8Mstwl3_yhwsIl
+      VAPID_CLAIMS_EMAIL: admin@aitema.de
   elasticsearch:
     environment:
     - discovery.type=single-node
