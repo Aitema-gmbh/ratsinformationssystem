@@ -108,13 +108,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <div id='scroll-progress' style={{position:'fixed',top:0,left:0,height:'3px',background:'linear-gradient(90deg,#3b82f6,#8b5cf6)',width:'0%',zIndex:9999,transition:'width 0.1s'}} />
+        <script dangerouslySetInnerHTML={{__html: `
+  window.addEventListener('scroll', function() {
+    var d = document.documentElement;
+    var progress = (d.scrollTop / (d.scrollHeight - d.clientHeight)) * 100;
+    document.getElementById('scroll-progress').style.width = progress + '%';
+  });
+`}} />
         {/* Accessibility: Skip Navigation */}
         <a href="#main-content" className="skip-link">
           Zum Hauptinhalt springen
         </a>
 
         {/* ── Navigation Header ────────────────────── */}
-        <header className="site-header" role="banner">
+        <header className="site-header" role="banner" style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           <nav className="main-nav" id="main-navigation" aria-label="Hauptnavigation">
 
             {/* Brand / Logo */}

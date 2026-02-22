@@ -9,6 +9,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig: NextConfig = {
+  experimental: {
+    reactCompiler: false,
+  },
   output: 'standalone',
   i18n: {
     locales: ['de'],
