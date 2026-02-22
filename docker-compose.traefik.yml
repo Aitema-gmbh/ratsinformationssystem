@@ -11,7 +11,7 @@ x-common: &common
 services:
   postgres:
     <<: *common
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: ris-postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
