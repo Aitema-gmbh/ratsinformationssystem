@@ -1,13 +1,14 @@
 {
-  "name": "aitema|Rats",
-  "short_name": "Rats",
-  "description": "Offenes Ratsinformationssystem - OParl 1.1 kompatibel",
+  "name": "aitema|RIS \u2013 Ratsinformationssystem",
+  "short_name": "aitema|RIS",
+  "description": "Offenes Ratsinformationssystem fuer transparente Kommunaldemokratie",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#1e40af",
-  "background_color": "#f9fafb",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "orientation": "any",
   "lang": "de",
+  "categories": ["government", "politics"],
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -22,8 +23,6 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["government", "politics"],
-  "screenshots": [],
   "shortcuts": [
     {
       "name": "Sitzungen",
