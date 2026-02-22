@@ -1,0 +1,93 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, -apple-system, sans-serif">
+
+  <!-- Background -->
+  <rect width="720" height="300" fill="#f8fafc" rx="6"/>
+  <rect x="1" y="1" width="718" height="298" fill="none" stroke="#e2e8f0" stroke-width="1" rx="6"/>
+
+  <!-- Title -->
+  <text x="360" y="30" text-anchor="middle" font-size="11" fill="#94a3b8" letter-spacing="2">INFORMATIONSFLUSS</text>
+
+  <!-- Node 1: Sitzung -->
+  <g transform="translate(60,90)">
+    <rect width="120" height="90" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+    <rect width="120" height="6" rx="4" fill="#0f172a" y="0"/>
+    <g transform="translate(40,18)" stroke="#0f172a" stroke-width="1.5" fill="none">
+      <polygon points="20,0 40,15 0,15" fill="#e2e8f0" stroke="#0f172a"/>
+      <rect x="4" y="15" width="32" height="22" fill="white" stroke="#0f172a"/>
+      <rect x="12" y="22" width="7" height="15" fill="#e2e8f0"/>
+      <rect x="21" y="22" width="7" height="15" fill="#e2e8f0"/>
+    </g>
+    <text x="60" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Ratssitzung</text>
+    <text x="60" y="91" text-anchor="middle" font-size="9" fill="#64748b">Gremien &amp; Beschlüsse</text>
+  </g>
+
+  <!-- Arrow 1→2 -->
+  <line x1="180" y1="135" x2="240" y2="135" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="240,131 248,135 240,139" fill="#3b82f6"/>
+
+  <!-- Node 2: Vorlage -->
+  <g transform="translate(248,90)">
+    <rect width="120" height="90" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+    <rect width="120" height="6" rx="4" fill="#1e3a5f" y="0"/>
+    <g transform="translate(38,16)" stroke="#1e3a5f" stroke-width="1.5" fill="none">
+      <rect x="0" y="0" width="28" height="36" rx="2" fill="white" stroke="#1e3a5f"/>
+      <polyline points="18,0 18,10 28,10" fill="#e2e8f0"/>
+      <line x1="5" y1="16" x2="23" y2="16"/>
+      <line x1="5" y1="21" x2="23" y2="21"/>
+      <line x1="5" y1="26" x2="16" y2="26"/>
+    </g>
+    <text x="60" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Digitale Vorlage</text>
+    <text x="60" y="91" text-anchor="middle" font-size="9" fill="#64748b">OParl 1.1 Standard</text>
+  </g>
+
+  <!-- Arrow 2→3 -->
+  <line x1="368" y1="135" x2="428" y2="135" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="428,131 436,135 428,139" fill="#3b82f6"/>
+
+  <!-- Node 3: Suche -->
+  <g transform="translate(436,90)">
+    <rect width="120" height="90" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+    <rect width="120" height="6" rx="4" fill="#3b82f6" y="0"/>
+    <g transform="translate(40,16)" stroke="#3b82f6" stroke-width="1.8" fill="none">
+      <circle cx="16" cy="16" r="12"/>
+      <circle cx="16" cy="16" r="6" stroke="#93c5fd"/>
+      <line x1="25" y1="25" x2="34" y2="34"/>
+    </g>
+    <text x="60" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Volltextsuche</text>
+    <text x="60" y="91" text-anchor="middle" font-size="9" fill="#64748b">Semantisch &amp; schnell</text>
+  </g>
+
+  <!-- Arrow 3→4 -->
+  <line x1="556" y1="135" x2="616" y2="135" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="616,131 624,135 616,139" fill="#3b82f6"/>
+
+  <!-- Node 4: Bürger -->
+  <g transform="translate(624,90)">
+    <rect width="96" height="90" rx="4" fill="white" stroke="#cbd5e1" stroke-width="1"/>
+    <rect width="96" height="6" rx="4" fill="#059669" y="0"/>
+    <g transform="translate(28,14)" stroke="#059669" stroke-width="1.5" fill="none">
+      <circle cx="20" cy="10" r="8" fill="#d1fae5"/>
+      <path d="M4 36 C4 24 36 24 36 36" fill="#d1fae5" stroke="#059669"/>
+    </g>
+    <text x="48" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#0f172a">Öffentlich</text>
+    <text x="48" y="91" text-anchor="middle" font-size="9" fill="#64748b">BITV 2.0 AA</text>
+  </g>
+
+  <!-- Tags -->
+  <g transform="translate(60,218)">
+    <rect width="140" height="24" rx="3" fill="none" stroke="#059669" stroke-width="1"/>
+    <text x="8" y="16" font-size="10" fill="#059669" font-weight="500">&lt;/&gt; MIT-Lizenz · Open Source</text>
+  </g>
+  <g transform="translate(214,218)">
+    <rect width="110" height="24" rx="3" fill="none" stroke="#94a3b8" stroke-width="1"/>
+    <text x="8" y="16" font-size="10" fill="#64748b">OParl 1.1 konform</text>
+  </g>
+  <g transform="translate(338,218)">
+    <rect width="100" height="24" rx="3" fill="none" stroke="#94a3b8" stroke-width="1"/>
+    <text x="8" y="16" font-size="10" fill="#64748b">BITV 2.0 AA</text>
+  </g>
+  <g transform="translate(452,218)">
+    <rect width="110" height="24" rx="3" fill="none" stroke="#94a3b8" stroke-width="1"/>
+    <text x="8" y="16" font-size="10" fill="#64748b">DSGVO-konform</text>
+  </g>
+</svg>

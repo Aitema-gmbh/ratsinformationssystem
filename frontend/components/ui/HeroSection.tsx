@@ -40,7 +40,7 @@ const HeroSection = () => {
 
           <div className="flex justify-center">
             <Image
-              src="/hero-animation.svg"
+              src="/ris-flow.svg"
               alt="Informationsfluss von Ratssitzung über Vorlage zum Bürger"
               width={440}
               height={290}
