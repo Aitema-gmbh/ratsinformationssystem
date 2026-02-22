@@ -3,14 +3,38 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #1d4ed8;
-  --color-primary-light: #3b82f6;
-  --color-primary-dark: #1e40af;
+  --aitema-navy:         #0f172a;
+  --aitema-blue:         #1e3a5f;
+  --aitema-accent:       #3b82f6;
+  --aitema-accent-hover: #2563eb;
+  --aitema-emerald:      #059669;
+  --aitema-slate-50:     #f8fafc;
+  --aitema-slate-100:    #f1f5f9;
+  --aitema-slate-200:    #e2e8f0;
+  --aitema-text:         #0f172a;
+  --aitema-muted:        #64748b;
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md:  0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg:  0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+
+/* Smooth rendering */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background-color: var(--aitema-slate-50);
+  color: var(--aitema-text);
+  line-height: 1.6;
 }
 
 /* Accessible focus styles */
 *:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--aitema-accent);
   outline-offset: 2px;
 }
 
@@ -27,15 +51,45 @@
 }
 
 /* Smooth scroll but respect prefers-reduced-motion */
-@media (prefers-reduced-motion: no-preference) {
+@media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 /* High contrast mode support */
 @media (forced-colors: active) {
-  .btn-primary {
+  .aitema-btn-primary {
     border: 2px solid ButtonText;
+  }
+}
+
+@layer components {
+  .aitema-card {
+    @apply bg-white rounded-xl shadow-card border border-slate-100 transition-shadow duration-200;
+  }
+  .aitema-card:hover {
+    @apply shadow-card-hover;
+  }
+  .aitema-btn-primary {
+    @apply bg-aitema-accent hover:bg-aitema-accent-hover text-white font-medium px-4 py-2 rounded-btn transition-all duration-150;
+  }
+  .aitema-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  .aitema-nav-link {
+    @apply px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-colors duration-150;
+  }
+  .aitema-section-title {
+    @apply text-lg font-semibold text-slate-900 tracking-tight;
+  }
+  .aitema-muted-text {
+    @apply text-sm text-slate-500;
   }
 }
