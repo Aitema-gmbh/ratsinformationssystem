@@ -1,31 +1,19 @@
-import { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
+import React from 'react';
 
-interface GlassCardProps {
-  children: ReactNode;
+type GlassCardProps = {
+  children: React.ReactNode;
   className?: string;
-  href?: string;
-}
+};
 
-export function GlassCard({ children, className = '', href }: GlassCardProps) {
-  const style = {
-    background: 'rgba(255, 255, 255, 0.08)',
-    backdropFilter: 'blur(12px)',
-    WebkitBackdropFilter: 'blur(12px)',
-    border: '1px solid rgba(255, 255, 255, 0.15)',
-    borderRadius: '1rem',
-    padding: '1.5rem',
-    transition: 'all 0.2s ease',
-  };
-
-  if (href) {
-    return (
-      <a href={href} style={style} className={className}>
-        {children}
-      </a>
-    );
-  }
+export function GlassCard({ children, className }: GlassCardProps) {
   return (
-    <div style={style} className={className}>
+    <div
+      className={cn(
+        'rounded-2xl border border-white/10 bg-white/5 p-8 shadow-lg backdrop-blur-lg',
+        className
+      )}
+    >
       {children}
     </div>
   );
