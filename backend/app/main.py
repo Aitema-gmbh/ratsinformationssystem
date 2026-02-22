@@ -14,6 +14,8 @@ from app.database import init_db
 from app.routers import oparl, export
 from app.routers.search import router as search_router
 from app.routers.subscriptions import router as subscriptions_router
+from app.routers.calendar import router as calendar_router
+from app.routers.rag import router as rag_router
 
 
 @asynccontextmanager
@@ -57,6 +59,8 @@ app.include_router(oparl.router)
 app.include_router(export.router)
 app.include_router(search_router)
 app.include_router(subscriptions_router)
+app.include_router(calendar_router)
+app.include_router(rag_router)
 
 
 # Health check

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { SubscribeButton } from '@/components/SubscribeButton';
+import RAGChat from './rag-chat';
 
 // ============================================================
 // Typen
@@ -1283,6 +1284,7 @@ function SuchePageInner() {
         </div>
       </div>
 
+      <RAGChat />
       {/* Responsive Styles */}
       <style>{`
         @keyframes spin {
