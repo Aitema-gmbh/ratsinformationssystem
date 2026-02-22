@@ -145,8 +145,45 @@ export default function SitzungenPage() {
           </div>
         </div>
         <p className="page-subtitle">Alle Sitzungen der kommunalen Gremien im Überblick</p>
-        <div style={{ marginTop: "0.5rem" }}>
+        <div style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           <SubscribeButton targetId="all" targetLabel="Sitzungskalender" type="meeting_calendar" />
+          <a
+            href="/api/calendar/sitzungen.ics"
+            download="sitzungen.ics"
+            title="Alle Sitzungen als ICS-Kalender herunterladen"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.375rem",
+              padding: "0.375rem 0.875rem",
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderRadius: "0.5rem",
+              color: "#1d4ed8",
+              fontSize: "0.8125rem",
+              fontWeight: 500,
+              textDecoration: "none",
+              transition: "background 0.15s, border-color 0.15s",
+            }}
+            onMouseEnter={e => {
+              const el = e.currentTarget as HTMLAnchorElement;
+              el.style.background = "#dbeafe";
+              el.style.borderColor = "#93c5fd";
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget as HTMLAnchorElement;
+              el.style.background = "#eff6ff";
+              el.style.borderColor = "#bfdbfe";
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Kalender abonnieren (.ics)
+          </a>
         </div>
       </div>
 
