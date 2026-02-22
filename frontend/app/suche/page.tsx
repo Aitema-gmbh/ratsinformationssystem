@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { SubscribeButton } from '@/components/SubscribeButton';
 import RAGChat from './rag-chat';
+import HeroSection from '@/components/ui/HeroSection';
+import ExplainerAnimation from '@/components/ui/ExplainerAnimation';
 
 // ============================================================
 // Typen
@@ -641,7 +643,12 @@ function SuchePageInner() {
       </div>
 
       {/* Hauptinhalt */}
-      <div>
+      <div className="space-y-12">
+        <HeroSection />
+        <div className="container mx-auto px-4">
+          <ExplainerAnimation />
+        </div>
+
         {/* Page Header */}
         <div className="page-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.375rem' }}>

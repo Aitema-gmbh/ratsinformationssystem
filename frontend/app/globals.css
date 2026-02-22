@@ -1,137 +1,76 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ================================================================
-   Design Tokens (CSS Custom Properties)
-   ================================================================ */
-@layer base {
-  :root {
-    /* aitema Brand Colors */
-    --aitema-navy: #0f172a;
-    --aitema-blue: #1e3a5f;
-    --aitema-accent: #3b82f6;
-    --aitema-accent-hover: #2563eb;
-    --aitema-emerald: #059669;
-    --aitema-slate-50: #f8fafc;
-    --aitema-slate-100: #f1f5f9;
-    --aitema-slate-200: #e2e8f0;
-    --aitema-slate-300: #cbd5e1;
-    --aitema-slate-400: #94a3b8;
-    --aitema-slate-500: #64748b;
-    --aitema-slate-700: #334155;
-    --aitema-slate-900: #0f172a;
-
-    /* Base Layering */
-    --background: var(--aitema-slate-50);
-    --foreground: var(--aitema-navy);
-    --surface: #ffffff;
-    --border: var(--aitema-slate-200);
-    --ring: var(--aitema-accent);
-
-    /* Text */
-    --text-primary: var(--aitema-navy);
-    --text-secondary: var(--aitema-slate-500);
-    --text-muted: var(--aitema-slate-400);
-    --text-accent: var(--aitema-accent);
-    --text-on-accent: #ffffff;
-
-    /* Gradients */
-    --gradient-accent: linear-gradient(120deg, var(--aitema-accent), var(--aitema-accent-hover));
-    --gradient-hero: linear-gradient(140deg, var(--aitema-navy) 0%, var(--aitema-blue) 100%);
-
-    /* Scroll Progress */
-    --scroll-progress: 0%;
-  }
-
-  /* ── CSS Reset & Base Styles ────────────────── */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    border: 0 solid var(--border);
-  }
-
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 8rem;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
-  body {
-    background: var(--background);
-    color: var(--text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-feature-settings: 'cv11', 'ss01';
-    letter-spacing: -0.011em;
-  }
-
-  /* Scroll Progress Bar */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: var(--gradient-accent);
-    width: var(--scroll-progress);
-    z-index: 1000;
-    animation: progress-bar linear;
-    animation-timeline: scroll();
-  }
-
-  @keyframes progress-bar {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
-  }
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --aitema-navy: #0f172a;
+  --aitema-accent: #3b82f6;
+  --aitema-emerald: #059669;
 }
 
-/* ================================================================
-   Keyframe Animations
-   ================================================================ */
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
 @layer utilities {
-  @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(16px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(-16px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-  @keyframes shimmer {
-    100% { transform: translateX(100%); }
-  }
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-    50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
-  }
-  @keyframes count-up {
-    from { --num: 0; }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  }
-  
-  .counter {
-    animation: count-up 1.5s ease-out forwards;
-    counter-reset: num var(--num);
-    font-feature-settings: "tnum";
-  }
-  .counter::after {
-    content: counter(num);
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
-/* ================================================================
-   Container Queries
-   ================================================================ */
-@layer components {
-  .card-container {
-    container-type: inline-size;
+@keyframes float {
+  0% {
+    transform: translatey(0px);
   }
+  50% {
+    transform: translatey(-10px);
+  }
+  100% {
+    transform: translatey(0px);
+  }
+}
+
+@keyframes shimmer-text {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-text {
+  animation: shimmer-text 5s infinite linear;
+  background-size: 200% auto;
+}
+
+
+@keyframes stroke-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fadeInUp {
+  animation: fadeInUp 1s ease-out forwards;
 }
