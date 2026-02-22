@@ -45,6 +45,7 @@ const HeroSection = () => {
               width={440}
               height={290}
               priority
+              unoptimized
               className="w-full h-auto"
               style={{maxWidth:'440px'}}
             />
